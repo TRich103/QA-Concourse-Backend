@@ -167,7 +167,6 @@ autoEmail.start();
 
 //clears expenses every month
 const clearExpenses =  new CronJob('0 1 1 * *', function() {
-	pending = [];
 	Trainee.find(function(err, trainee) {
 	   trainee.map(function(currentTrainee){
 		   currentTrainee.monthly_expenses = []
