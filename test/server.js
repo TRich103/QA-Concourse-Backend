@@ -341,4 +341,33 @@ describe('trainee tests', () => {
 			}
 		});
 	});
+
+	it('test changePassword', (done) => {
+		chai.request('http://localhost:4000').post('/trainee/update-my-password/5d0b629524eb545e4863b83e').send({'trainee_password': 'pass', 'previous': 'password'}).end((err, res) =>{
+			if (res.status == '200'){
+				console.log('HERE IS UPDATING PASWORD!!!!')
+				console.log(res.body);
+				done();
+			}
+			else if (res.status == '205'){
+				console.log(res.body);
+			}
+			else {
+				console.log('test failed for unknown reasons' + err);
+			}
+		});
+	});
 });
+
+describe('admin update password test', () => {
+	it('test updatePassword', (done) => {
+		chai.request('http://localhost:4000').post('/admin/update-mypassword-staff/5d0b52d4f2671a43f4e3eb79').send({'password':'adamadam', 'previous':'adam'}).end((err, res) => {
+			if(res.status == '200'){
+				done();
+			}
+			else{
+				console.log('test has failed'+ err);
+			}
+		})
+	})
+})

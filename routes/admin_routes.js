@@ -294,8 +294,8 @@ adminRoutes.route('/update-mypassword-staff/:id').post(function(req, res) {
                       res.send('Something went wrong!');
                   }
                    else if(!isMatch){
-                      console.log('user: ' + user._id + ' entered wrong password');
-                      winston.error('user: ' + user._id + ' entered wrong password');
+                      console.log('user: ' + staff._id + ' entered wrong password');
+                      winston.error('user: ' + staff._id + ' entered wrong password');
                       res.send('Old password did not match!');
                   }
                   else {
