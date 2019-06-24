@@ -83,6 +83,66 @@ let Trainee = new Schema({
         type: Array,
         default: []
     },
+    trainee_gender: {
+        type: String,
+        required: true
+    },
+    trainee_uniName: {
+        type: String,
+    },
+    trainee_phone: {
+        type: String,
+        required: true
+    },
+    trainee_degree: {
+        type: String,
+    },
+    trainee_chosenTech: {
+        type: String,
+        required: true
+    },
+    trainee_intake: {
+        type: String,
+        required: true
+    },
+    trainee_geo: {
+        type: String,
+        required: true
+    },
+    trainee_clearance: {
+        type: String,
+        required: true
+    },
+    trainee_businessEmail: {
+        type: String
+    },
+    trainee_aptitude_score: {
+        type: String
+    },
+    trainee_languages:{
+        type: String
+    },
+    documents_signed:{
+        type: String
+    },
+    sent_Agreement:{
+        type: String
+    },
+    received_Agreement:{
+        type: String
+    },
+    accomodation: {
+        type: String
+    },
+    java_test_Score:{
+        type: String
+    },
+    MTE : {
+        type: String
+    },
+    date_Achieved:{
+        type: String
+    }
 });
 module.exports = mongoose.model('Trainee', Trainee);
 

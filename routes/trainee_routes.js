@@ -19,8 +19,10 @@ var passport = require ('passport');
 var CryptoJS = require("crypto-js");
 var requireAuth = passport.authenticate('jwt', {session: false});
 
+let Tech = require('../models/tech.model');
+let Intake = require('../models/intakes.model');
 let Trainee = require('../models/trainee.model');
-let User = require('../models/staff.js')
+let User = require('../models/staff.js');
 let SortCodeCollection = require('../models/sortcode.model');
 
 
@@ -61,6 +63,14 @@ traineeRoutes.route('/', requireAuth, AuthenticationController.roleAuthorization
                 currentTrainee.trainee_end_date = bytes.toString(CryptoJS.enc.Utf8);
                 bytes = CryptoJS.AES.decrypt(currentTrainee.trainee_days_worked, '3FJSei8zPx');
                 currentTrainee.trainee_days_worked = bytes.toString(CryptoJS.enc.Utf8);
+                currentTrainee.trainee_gender = CryptoJS.AES.decrypt(currentTrainee.trainee_gender, '3FJSei8zPx').toString(CryptoJS.enc.Utf8);
+                currentTrainee.trainee_uniName = CryptoJS.AES.decrypt(currentTrainee.trainee_uniName, '3FJSei8zPx').toString(CryptoJS.enc.Utf8);
+                currentTrainee.trainee_phone = CryptoJS.AES.decrypt(currentTrainee.trainee_phone, '3FJSei8zPx').toString(CryptoJS.enc.Utf8);
+                currentTrainee.trainee_degree = CryptoJS.AES.decrypt(currentTrainee.trainee_degree, '3FJSei8zPx').toString(CryptoJS.enc.Utf8);
+                currentTrainee.trainee_chosenTech = CryptoJS.AES.decrypt(currentTrainee.trainee_chosenTech, '3FJSei8zPx').toString(CryptoJS.enc.Utf8);
+                currentTrainee.trainee_intake = CryptoJS.AES.decrypt(currentTrainee.trainee_intake, '3FJSei8zPx').toString(CryptoJS.enc.Utf8);
+                currentTrainee.trainee_geo = CryptoJS.AES.decrypt(currentTrainee.trainee_geo, '3FJSei8zPx').toString(CryptoJS.enc.Utf8);
+                currentTrainee.trainee_clearance = CryptoJS.AES.decrypt(currentTrainee.trainee_clearance, '3FJSei8zPx').toString(CryptoJS.enc.Utf8);
                 currentTrainee.monthly_expenses.map(expense => {
                     //console.log(expense);
                     expense.expenseType = CryptoJS.AES.decrypt(expense.expenseType,'3FJSei8zPx').toString(CryptoJS.enc.Utf8);
@@ -120,6 +130,14 @@ traineeRoutes.route('/:id').get(function(req, res) {
             trainee.bursary_amount = bytes.toString(CryptoJS.enc.Utf8);
             bytes = CryptoJS.AES.decrypt(trainee.trainee_days_worked, '3FJSei8zPx');
             trainee.trainee_days_worked = bytes.toString(CryptoJS.enc.Utf8);
+            trainee.trainee_gender = CryptoJS.AES.decrypt(trainee.trainee_gender, '3FJSei8zPx').toString(CryptoJS.enc.Utf8);
+            trainee.trainee_uniName = CryptoJS.AES.decrypt(trainee.trainee_uniName, '3FJSei8zPx').toString(CryptoJS.enc.Utf8);
+            trainee.trainee_phone = CryptoJS.AES.decrypt(trainee.trainee_phone, '3FJSei8zPx').toString(CryptoJS.enc.Utf8);
+            trainee.trainee_degree = CryptoJS.AES.decrypt(trainee.trainee_degree, '3FJSei8zPx').toString(CryptoJS.enc.Utf8);
+            trainee.trainee_chosenTech = CryptoJS.AES.decrypt(trainee.trainee_chosenTech, '3FJSei8zPx').toString(CryptoJS.enc.Utf8);
+            trainee.trainee_intake = CryptoJS.AES.decrypt(trainee.trainee_intake, '3FJSei8zPx').toString(CryptoJS.enc.Utf8);
+            trainee.trainee_geo = CryptoJS.AES.decrypt(trainee.trainee_geo, '3FJSei8zPx').toString(CryptoJS.enc.Utf8);
+            trainee.trainee_clearance = CryptoJS.AES.decrypt(trainee.trainee_clearance, '3FJSei8zPx').toString(CryptoJS.enc.Utf8);
             if(trainee.status === 'Active'){
                 bytes = CryptoJS.AES.decrypt(trainee.trainee_bank_name, '3FJSei8zPx');
                 trainee.trainee_bank_name = bytes.toString(CryptoJS.enc.Utf8);
@@ -168,6 +186,14 @@ traineeRoutes.route('/getByEmail').post(function(req,res) {
             trainee.added_By = bytes.toString(CryptoJS.enc.Utf8);
             bytes = CryptoJS.AES.decrypt(trainee.bursary, '3FJSei8zPx');
             trainee.bursary = bytes.toString(CryptoJS.enc.Utf8);
+            trainee.trainee_gender = CryptoJS.AES.decrypt(trainee.trainee_gender, '3FJSei8zPx').toString(CryptoJS.enc.Utf8);
+            trainee.trainee_uniName = CryptoJS.AES.decrypt(trainee.trainee_uniName, '3FJSei8zPx').toString(CryptoJS.enc.Utf8);
+            trainee.trainee_phone = CryptoJS.AES.decrypt(trainee.trainee_phone, '3FJSei8zPx').toString(CryptoJS.enc.Utf8);
+            trainee.trainee_degree = CryptoJS.AES.decrypt(trainee.trainee_degree, '3FJSei8zPx').toString(CryptoJS.enc.Utf8);
+            trainee.trainee_chosenTech = CryptoJS.AES.decrypt(trainee.trainee_chosenTech, '3FJSei8zPx').toString(CryptoJS.enc.Utf8);
+            trainee.trainee_intake = CryptoJS.AES.decrypt(trainee.trainee_intake, '3FJSei8zPx').toString(CryptoJS.enc.Utf8);
+            trainee.trainee_geo = CryptoJS.AES.decrypt(trainee.trainee_geo, '3FJSei8zPx').toString(CryptoJS.enc.Utf8);
+            trainee.trainee_clearance = CryptoJS.AES.decrypt(trainee.trainee_clearance, '3FJSei8zPx').toString(CryptoJS.enc.Utf8);
             res.json(trainee);
             winston.info("Trainee: "+req.body.trainee_email+" info returned "+moment().format('h:mm:ss a'));
             logger.verbose("Trainee: "+req.body.trainee_email+" info returned "+moment().format('h:mm:ss a'));
@@ -313,15 +339,22 @@ traineeRoutes.route('/daysToWork').post(function(req, res){
 //adds new trainee to database
 traineeRoutes.route('/add').post(function(req, res) {
     let email = req.body.trainee_email;
-    let addedBy = req.body.added_By;
+    let staff = req.body.added_By;
     let logger = databaseLogger.createLogger(email);
     console.log("adding a trainee req.body : ");
-    console.log(req.body);
-	
+    console.log(req.body.trainee_start_date);	
     req.body.trainee_fname = CryptoJS.AES.encrypt(req.body.trainee_fname, '3FJSei8zPx').toString();
     req.body.trainee_lname = CryptoJS.AES.encrypt(req.body.trainee_lname, '3FJSei8zPx').toString();
     req.body.trainee_email = CryptoJS.AES.encrypt(req.body.trainee_email.toLowerCase(), CryptoJS.enc.Hex.parse("253D3FB468A0E24677C28A624BE0F939"), {iv: CryptoJS.enc.Hex.parse("00000000000000000000000000000000")});
     req.body.trainee_password  = CryptoJS.AES.encrypt(req.body.trainee_password, '3FJSei8zPx').toString();
+    req.body.trainee_gender = CryptoJS.AES.encrypt(req.body.trainee_gender, '3FJSei8zPx').toString();
+    req.body.trainee_uniName = CryptoJS.AES.encrypt(req.body.trainee_uniName, '3FJSei8zPx').toString();
+    req.body.trainee_phone = CryptoJS.AES.encrypt(req.body.trainee_phone, '3FJSei8zPx').toString();
+    req.body.trainee_degree = CryptoJS.AES.encrypt(req.body.trainee_degree, '3FJSei8zPx').toString();
+    req.body.trainee_chosenTech = CryptoJS.AES.encrypt(req.body.trainee_chosenTech, '3FJSei8zPx').toString();
+    req.body.trainee_intake = CryptoJS.AES.encrypt(req.body.intake, '3FJSei8zPx').toString();
+    req.body.trainee_geo = CryptoJS.AES.encrypt(req.body.trainee_geo, '3FJSei8zPx').toString();
+    req.body.trainee_clearance = CryptoJS.AES.encrypt(req.body.trainee_clearance, '3FJSei8zPx').toString();
     req.body.trainee_start_date = CryptoJS.AES.encrypt(req.body.trainee_start_date, '3FJSei8zPx').toString();
     req.body.trainee_end_date = CryptoJS.AES.encrypt(req.body.trainee_end_date, '3FJSei8zPx').toString();
     req.body.trainee_bench_start_date = CryptoJS.AES.encrypt(req.body.trainee_bench_start_date.toString(), '3FJSei8zPx').toString();
@@ -335,11 +368,11 @@ traineeRoutes.route('/add').post(function(req, res) {
     let trainee = new Trainee(req.body);
     trainee.save()
         .then(trainee => {
-			console.log('Recruitor: ' + trainee.added_By + ' has created a new trainee: '+ trainee._id);
+			console.log('User: ' + trainee.added_By + ' has created a new trainee: '+ trainee._id);
             console.log('An email is being sent to ' + trainee._id );
-            logger.info('User: ' + addedBy + ' has created a new trainee: '+ email + " "+moment().format('h:mm:ss a'));
+            logger.info('User: ' + staff + ' has created a new trainee: '+ email + " "+moment().format('h:mm:ss a'));
             logger.verbose('An email is being sent to ' + email + " "+ moment().format('h:mm:ss a'));
-			winston.info('User: ' + addedBy + ' has created a new trainee: '+ email + " " + moment().format('h:mm:ss a'));
+			winston.info('User: ' + staff + ' has created a new trainee: '+ email + " " + moment().format('h:mm:ss a'));
 			winston.info('An email is being sent to ' + email + " "+ moment().format('h:mm:ss a'));
             res.status(200).json({'trainee': 'Trainee added successfully'});
 			
@@ -348,7 +381,7 @@ traineeRoutes.route('/add').post(function(req, res) {
             res.status(205).send('Adding new trainee failed');
 			console.log(err);
             winston.error('Adding new trainee failed. Error: '+err +" "+moment().format('h:mm:ss a'));
-            logger.error('Adding new trainee failed. Error: '+err + " "+moment().format('h:mm:ss a'));
+            logger.error('User '+staff + " attempted to remake trainee with same email "+moment().format('h:mm:ss a'));
         });
 });
 
@@ -852,12 +885,83 @@ traineeRoutes.route('/monthlyReport/updateStatus').post(function(req, res) {
             else if(req.body.user_role === "finance"){
                 report.status = CryptoJS.AES.encrypt('FinanceApproved', '3FJSei8zPx').toString();
                 report.save().then(report => {
-                    res.json('Sucessfully updated ');
+                    res.json('Sucessfully updated');
                 })
             }
             else{
                 res.json('Unable to update report');
             }
+        }
+    })
+})
+
+traineeRoutes.route('/get/allTech/').get(function(req, res) {
+    Tech.find({}, function(err, tech){
+        let logger = databaseLogger.createLogger("universal");
+        if (err) {
+            console.log(err);
+            winston.error(err + " "+moment().format('h:mm:ss a'));
+            logger.error(err + " "+moment().format('h:mm:ss a'));
+        }else{
+            let names = [];
+            tech.map(function(currentTech, i){
+                names.push({value: currentTech.techName, label: currentTech.techName});
+            });
+            res.json(names);
+        }
+    })
+});
+
+traineeRoutes.route('/addTech').post(function(req, res) {
+    Tech.findOne({techName: req.body.techName}, function(err, tech){
+        if(tech === null){
+            let newTech = new Tech();
+            newTech.techName = req.body.techName;
+            newTech.save().then(newTech => {
+                res.json('New tech has been added');
+                winston.info('New tech: '+ newTech.techName+ ' has been added '+moment().format('h:mm:ss a'));
+            })
+            .catch(err => {
+                res.status(400).send("Could not updated Days Worked");
+                console.log(err);
+                winston.error('New tech adding: '+ newTech.techName+ ' has not been added due to error: '+err +" "+ moment().format('h:mm:ss a'))
+            });
+        }
+    })
+});
+
+traineeRoutes.route('/addIntake').post(function(req, res) {
+    Intake.findOne({intakeName: req.body.intakeName}, function(err, intake){
+        if(intake === null){
+            let newIntake = new Intake();
+            console.log(req.body);
+            newIntake.intakeName = req.body.intakeName;
+            newIntake.save().then(newIntake => {
+                res.json('New Intake has been added');
+                winston.info('New Intake added '+moment().format('h:mm:ss a'));
+            })
+            .catch(err => {
+                res.status(400).send("Could not add new Intake");
+                console.log(err);
+                winston.error('New Intake adding: '+ newIntake.intakeName + ' has not been ')
+            });
+        }
+    })
+})
+
+traineeRoutes.route('/get/Intakes/').get(function(req, res) {
+    Intake.find({}, function(err, intake) {
+        if(err){
+            console.log(err);
+            winston.error(err + " "+moment().format('h:mm:ss a'));
+            res.status(400).send("Issue getting trainee");
+        }
+        else{
+            let formattedIntakes = [];
+            intake.map(function(currentIntake, i){
+                formattedIntakes.push({value: currentIntake.intakeName, label: currentIntake.intakeName});
+            });
+            res.json(formattedIntakes);
         }
     })
 })

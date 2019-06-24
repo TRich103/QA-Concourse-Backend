@@ -356,8 +356,7 @@ adminRoutes.route('/update-password-staff/:token').post(function(req, res) {
                   });
             }      
         });
-    });  
-    
+    });   
     adminRoutes.route('/getRecord/:id').get(function(req, res){
         User.findById(req.params.id, function(err, user){
             let logger = databaseLogger.createLogger('universal')
@@ -479,15 +478,34 @@ adminRoutes.route('/getexp/:id').get(function(req,res){
 
 //gets trainee by id and removes expense
 adminRoutes.route('/removeExpenses/:id').post(function (req, res) {
-    function arrayRemove(arr, json) {
+    function arrayRemove(arr, json, location) {
+        console.log('here it is: ' + location);
+        let count = 0;
         let result = arr.filter(function(ele){
-                console.log(ele)
-                console.log(json)
-                console.log(ele.amount !== json.amount);
                 if(ele.amount !== json.amount && ele.expenseType !== json.expenseType){
+                    console.log(ele);
                     ele.amount = CryptoJS.AES.encrypt(ele.amount, '3FJSei8zPx').toString();
-                    ele.expenseType = CryptoJS.AES.encrypt(ele.expenseType, '3FJSei8zPx').toString()
+                    ele.expenseType = CryptoJS.AES.encrypt(ele.expenseType, '3FJSei8zPx').toString();
+                    count++;
                     return ele;
+                } else if(ele.amount !== json.amount || ele.expenseType !== json.expenseType){
+                    console.log(ele);
+                    ele.amount = CryptoJS.AES.encrypt(ele.amount, '3FJSei8zPx').toString();
+                    ele.expenseType = CryptoJS.AES.encrypt(ele.expenseType, '3FJSei8zPx').toString();
+                    count++;
+                    return ele;
+                }else{
+                    console.log('count where found is: '+count);
+                    console.log(ele);
+                    if(count === location){
+
+                    }
+                    else{
+                        ele.amount = CryptoJS.AES.encrypt(ele.amount, '3FJSei8zPx').toString();
+                        ele.expenseType = CryptoJS.AES.encrypt(ele.expenseType, '3FJSei8zPx').toString();
+                        count++;
+                        return ele;
+                    }
                 }
         });
         return result;
@@ -515,7 +533,8 @@ adminRoutes.route('/removeExpenses/:id').post(function (req, res) {
                 } )
            
             let data = trainee.monthly_expenses;
-            data = arrayRemove(data, req.body);
+            console.log('When sent, it is: '+req.body.location);
+            data = arrayRemove(data, {"expenseType": req.body.expenseType, "amount": req.body.amount}, req.body.location);
             trainee.monthly_expenses = data;
 
             trainee.save().then(trainee => {
