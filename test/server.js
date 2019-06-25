@@ -1,5 +1,4 @@
 'use strict'
-
 let user = require('../models/staff.js');
 var CryptoJS = require("crypto-js");
 var existingemail = "sZjrgWgK7vj49jcWVAw8e8KskrOOIcbKFvKYboWdUuY="; //set the email of an existing trainee here
