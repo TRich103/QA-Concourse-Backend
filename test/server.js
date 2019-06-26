@@ -340,6 +340,7 @@ describe('trainee tests', () => {
 			}
 		});
 	});
+});
 
 	it('test getting privacy policy', (done) => {
 		chai.request('http://localhost:4000').get('/privacy/5d0b629524eb545e4863b83e').end((err, res) =>{
