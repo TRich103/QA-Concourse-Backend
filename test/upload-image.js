@@ -100,9 +100,14 @@ let updateBursary = {
 	'bursary': 'true'
 }
 
+let profilePic = {
+    'imageName':'testimg',
+    'imageData':'C:\Users\spiro\Downloads\Pizza.jpg'
+}
+
 describe('Testing profile picture upload', () => {
 	it('test uploadPicture', (done) => {
-		chai.request('http://localhost:4000').post('http://localhost:3000/uploadmulter/').attach({'imageName':'testimg', 'imageData':'C:\Users\spiro\Downloads\Pizza.jpg'}).end((err, res) => {
+		chai.request('http://localhost:4000/').post('/uploadmulter').send({profilePic}).end((err, res) => {
 			if(res.status == '200'){
 				done();
 			}
