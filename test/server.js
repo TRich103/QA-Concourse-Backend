@@ -100,7 +100,7 @@ let updateBursary = {
 	'bursary': 'true'
 }
 
-describe('trainee tests', () => {
+/*describe('trainee tests', () => {
 	var userId;
 	var userEmail;
 	var token;
@@ -398,4 +398,4 @@ describe('admin update password test', () => {
 			}
 		})
 	})
-})
+})*/
