@@ -102,18 +102,25 @@ let updateBursary = {
 
 let profilePic = {
     'imageName':'testimg',
-    'imageData':'C:\Users\spiro\Downloads\Pizza.jpg'
+    'imageData':'../Pizza.jpg'
 }
 
 describe('Testing profile picture upload', () => {
-	it('test uploadPicture', (done) => {
-		chai.request('http://localhost:4000/').post('/uploadmulter').send({profilePic}).end((err, res) => {
-			if(res.status == '200'){
-				done();
-			}
-			else{
-				console.log('test has failed'+ err);
-			}
-		})
-	})
-})
+	it('Should get a status of 200', (done) => {
+		chai.request('http://localhost:4000/').post('/uploadmulter').attach( 'Pizza.jpg', './Pizza.jpg').end((err, res) => {
+			if (err) {
+                console.log(err);
+            } else expect(res.status).to.equal(200);
+            done();
+		});
+	});
+});
+
+/*describe('uploadmulter/', () => {
+	it('Should get a staus of 200', (done) => {
+		chai.request('http://localhost:4000').get('/trainee/').end((err, res) => {
+			res.should.have.status(200);
+			done();
+		});
+	});
+});*/
