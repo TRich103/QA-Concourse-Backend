@@ -48,7 +48,7 @@ app.use('/admin', require('./routes/admin_routes'));
 app.use('/auth', require('./routes/auth_routes'));
 app.use('/settings', require('./routes/settings_routes'));
 app.use('/privacy', require('./routes/privacy_routes'));
-app.use('/profile', require('./routes/image'));
+app.use('/profile', require('./routes/image_routes'));
 
 app.listen(PORT, function() {
 	console.log("Server is running on Port: " + PORT);
