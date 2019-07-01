@@ -107,7 +107,7 @@ let profilePic = {
 
 describe('Testing profile picture upload', () => {
 	it('Should get a status of 200', (done) => {
-		chai.request('http://localhost:4000/').post('/uploadmulter').attach( 'Pizza.jpg', './Pizza.jpg').end((err, res) => {
+		chai.request('http://localhost:4000').post('/profile/uploadmulter').attach( 'Pizza.jpg', '/Users/spiro/QABursaryProject/QA-Concourse-Backend/Pizza.jpg').end((err, res) => {
 			if (err) {
                 console.log(err);
             } else expect(res.status).to.equal(200);

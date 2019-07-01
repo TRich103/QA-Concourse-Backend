@@ -20,4 +20,5 @@ var ImageSchema = new Schema({
 
 var Image = mongoose.model('Image', ImageSchema);
 
+//Exporting the image function
 module.exports = Image;
