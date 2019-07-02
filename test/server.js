@@ -1,5 +1,5 @@
 'use strict'
-let user = require('../models/staff.js');
+/*let user = require('../models/staff.js');
 var CryptoJS = require("crypto-js");
 var existingemail = "sZjrgWgK7vj49jcWVAw8e8KskrOOIcbKFvKYboWdUuY="; //set the email of an existing trainee here
 var existingStaffEmail = "4QWRatu2iG4jAL95IVDX3wxnEt9ruGQHMb91T/poKtA="; //set the email of an existing user here
@@ -100,7 +100,7 @@ let updateBursary = {
 	'bursary': 'true'
 }
 
-/*describe('trainee tests', () => {
+describe('trainee tests', () => {
 	var userId;
 	var userEmail;
 	var token;
@@ -399,3 +399,4 @@ describe('admin update password test', () => {
 		})
 	})
 })*/
+
