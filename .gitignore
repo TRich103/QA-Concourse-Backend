@@ -2,3 +2,4 @@
 /logs/
 /.nyc_output/
 /.env
+/package-lock.json
