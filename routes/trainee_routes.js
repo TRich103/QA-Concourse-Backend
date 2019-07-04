@@ -39,8 +39,8 @@ traineeRoutes.route('/', requireAuth, AuthenticationController.roleAuthorization
         let logger = databaseLogger.createLogger("universal");
         if (err) {
             console.log(err);
-            winston.error(err + " "+moment().format('h:mm:ss a'));
-            logger.error(err + " "+moment().format('h:mm:ss a'));
+            winston.error(moment().format('h:mm:ss a') + " " + err);
+            logger.error(moment().format('h:mm:ss a') + " " + err);
         } else {
             trainee.map(function(currentTrainee, i){
                 var bytes  = CryptoJS.AES.decrypt(currentTrainee.trainee_email, CryptoJS.enc.Hex.parse("253D3FB468A0E24677C28A624BE0F939"), {iv: CryptoJS.enc.Hex.parse("00000000000000000000000000000000")});
@@ -63,6 +63,8 @@ traineeRoutes.route('/', requireAuth, AuthenticationController.roleAuthorization
                 currentTrainee.trainee_end_date = bytes.toString(CryptoJS.enc.Utf8);
                 bytes = CryptoJS.AES.decrypt(currentTrainee.trainee_days_worked, '3FJSei8zPx');
                 currentTrainee.trainee_days_worked = bytes.toString(CryptoJS.enc.Utf8);
+                currentTrainee.trainee_bench_start_date = CryptoJS.AES.decrypt(currentTrainee.trainee_bench_start_date, '3FJSei8zPx').toString(CryptoJS.enc.Utf8);
+                currentTrainee.trainee_bench_end_date = CryptoJS.AES.decrypt(currentTrainee.trainee_bench_end_date, '3FJSei8zPx').toString(CryptoJS.enc.Utf8);
                 currentTrainee.trainee_gender = CryptoJS.AES.decrypt(currentTrainee.trainee_gender, '3FJSei8zPx').toString(CryptoJS.enc.Utf8);
                 currentTrainee.trainee_uniName = CryptoJS.AES.decrypt(currentTrainee.trainee_uniName, '3FJSei8zPx').toString(CryptoJS.enc.Utf8);
                 currentTrainee.trainee_phone = CryptoJS.AES.decrypt(currentTrainee.trainee_phone, '3FJSei8zPx').toString(CryptoJS.enc.Utf8);
@@ -87,8 +89,8 @@ traineeRoutes.route('/', requireAuth, AuthenticationController.roleAuthorization
             });
             console.log(trainee);
             res.json(trainee);
-            logger.verbose('database collected all trainees successfully '+moment().format('h:mm:ss a'));
-			winston.info('database collected all trainees successfully '+moment().format('h:mm:ss a'));
+            logger.verbose(moment().format('h:mm:ss a')+' database collected all trainees successfully');
+			winston.info(moment().format('h:mm:ss a') + ' database collected all trainees successfully');
         }
     });
 });
@@ -148,13 +150,13 @@ traineeRoutes.route('/:id').get(function(req, res) {
             }
             let logger = databaseLogger.createLogger(trainee.trainee_email);
             res.json(trainee);
-            logger.verbose("Trainee info accessed "+moment().format('h:mm:ss a'))
-            winston.info('get data for trainee: '+ trainee.trainee_email + " "+ moment().format('h:mm:ss a'));
+            logger.verbose(moment().format('h:mm:ss a') + " Trainee info accessed "+ trainee.trainee_fname + ' '+ trainee.trainee_lname);
+            winston.info(moment().format('h:mm:ss a') + ' get data for trainee: '+ trainee.trainee_email);
         }
     })
     .catch(err => {
         console.log(err);
-		winston.error(err + " " +moment().format('h:mm:ss a'));
+		winston.error(moment().format('h:mm:ss a') + err);
         res.status(400).send("Trainee doesn't exist");
     });
 }) 
@@ -168,8 +170,8 @@ traineeRoutes.route('/getByEmail').post(function(req,res) {
             res.status(205).send("Trainee doesn't exist");
             User.findOne({email: email}, function(err, user) {
                 if(!user){
-                    winston.error("Trainee: "+ req.body.trainee_email+ " doesn't exist "+moment().format('h:mm:ss a'));
-                    logger.error("Trainee: "+ req.body.trainee_email+ " doesn't exist "+moment().format('h:mm:ss a'));
+                    winston.error(moment().format('h:mm:ss a') + " Trainee: "+ req.body.trainee_email+ " doesn't exist ");
+                    logger.error(moment().format('h:mm:ss a') + " Trainee: "+ req.body.trainee_email+ " doesn't exist ");
                 }
             });
         }
@@ -195,20 +197,25 @@ traineeRoutes.route('/getByEmail').post(function(req,res) {
             trainee.trainee_geo = CryptoJS.AES.decrypt(trainee.trainee_geo, '3FJSei8zPx').toString(CryptoJS.enc.Utf8);
             trainee.trainee_clearance = CryptoJS.AES.decrypt(trainee.trainee_clearance, '3FJSei8zPx').toString(CryptoJS.enc.Utf8);
             res.json(trainee);
-            winston.info("Trainee: "+req.body.trainee_email+" info returned "+moment().format('h:mm:ss a'));
-            logger.verbose("Trainee: "+req.body.trainee_email+" info returned "+moment().format('h:mm:ss a'));
+            winston.info(moment().format('h:mm:ss a') + " Trainee: "+req.body.trainee_email+" info returned ");
+            logger.verbose(moment().format('h:mm:ss a') + " Trainee: "+trainee.trainee_fname+" "+trainee.trainee_lname+" info returned");
         }
     })
     .catch(err => {
         res.status(205).send("Trainee doesn't exist");
-        winston.error(err + " "+moment().format('h:mm:ss a'));
-        logger.error(err + " " +moment().format('h:mm:ss a'));
+        winston.error(moment().format('h:mm:ss a') + " "+ err);
+        logger.error(moment().format('h:mm:ss a') + " " + err);
     })
 })
 
 
 // update trainee days to work
 traineeRoutes.route('/daysToWork/:id').post(function(req, res) {
+    let name;
+    User.findById(req.body.addedBy, function (err, user) {
+        name = CryptoJS.AES.decrypt(user.fname, 'c9nMaacr2Y').toString(CryptoJS.enc.Utf8) + " "+CryptoJS.AES.decrypt(user.lname, 'c9nMaacr2Y').toString(CryptoJS.enc.Utf8);
+    })
+    
 	Trainee.findById(req.params.id, function(err, trainee) {
 		if (!trainee)
             res.status(404).send("no data is not found");
@@ -218,21 +225,23 @@ traineeRoutes.route('/daysToWork/:id').post(function(req, res) {
                 , {iv: CryptoJS.enc.Hex.parse("00000000000000000000000000000000")})
                 .toString(CryptoJS.enc.Utf8)
             let logger = databaseLogger.createLogger(email);
-			let days = CryptoJS.AES.encrypt(req.body.trainee_days_worked, '3FJSei8zPx').toString();
-			trainee.trainee_days_worked = days;
+            let days = CryptoJS.AES.encrypt(req.body.trainee_days_worked, '3FJSei8zPx').toString();
+            trainee.trainee_days_worked = days;
             console.log(req.body.trainee_days_worked);
             console.log("encrypted"+days);
 			
 			trainee.save().then(trainee => {
+                trainee.trainee_fname = CryptoJS.AES.decrypt(trainee.trainee_fname,'3FJSei8zPx').toString(CryptoJS.enc.Utf8);
+                trainee.trainee_lname = CryptoJS.AES.decrypt(trainee.trainee_lname,'3FJSei8zPx').toString(CryptoJS.enc.Utf8);
                 res.json('Trainee working days have been updated');
-				winston.info('Trainee: '+ email+ ' has had their working days amount changed '+moment().format('h:mm:ss a'));
-                logger.info('Trainee: '+ email+ ' has had their working days dates changed '+moment().format('h:mm:ss a'));
+				winston.info(moment().format('h:mm:ss a') + ' - Changed By('+name+"): "+ email+ ' has had their working days amount changed ');
+                logger.info(moment().format('h:mm:ss a') + ' - Changed By('+name+"): "+ trainee.trainee_fname + " " + trainee.trainee_lname+ ' has had their working days dates changed to : '+req.body.trainee_days_worked);
             })
             .catch(err => {
                 res.status(400).send("Could not updated Days Worked");
                 console.log(err);
-				winston.error('Trainee: '+ email+ ' has not been updated due to error: '+err +" "+ moment().format('h:mm:ss a'))
-                logger.error('Trainee: '+ email+ ' has not been updated due to error: '+err + " "+ moment().format('h:mm:ss a'));
+				winston.error(moment().format('h:mm:ss a') + ' - Changed By('+name+"): "+ email+ ' has not been updated due to error: '+err)
+                logger.error(moment().format('h:mm:ss a') + ' - Changed By('+name+"): "+ trainee.trainee_fname + " " + trainee.trainee_lname+ ' has not been updated due to error: '+err);
             });
 		}
   });
@@ -244,7 +253,7 @@ traineeRoutes.route('/daysToWork').post(function(req, res){
     Trainee.findOne({trainee_email: email}, async function(err, trainee) {
         if(!trainee){
             res.status(404).send("trainee is not found");
-            logger.error("Trainee not found "+moment().format('h:mm:ss a'));
+            //logger.error("Trainee not found "+moment().format('h:mm:ss a'));
             winston.error("Trainee not found "+moment().format('h:mm:ss a'));
         }else{
 			let feed = new HolidayFeed();
@@ -257,31 +266,50 @@ traineeRoutes.route('/daysToWork').post(function(req, res){
             let bursary = CryptoJS.AES.encrypt(trainee.bursary, '3FJSei8zPx').toString(CryptoJS.enc.Utf8);
             let bursary_start = moment(CryptoJS.AES.decrypt(trainee.trainee_start_date, '3FJSei8zPx').toString(CryptoJS.enc.Utf8));
             let bench_end = moment(CryptoJS.AES.decrypt(trainee.trainee_bench_end_date, '3FJSei8zPx').toString(CryptoJS.enc.Utf8));
+            let fname = CryptoJS.AES.decrypt(trainee.trainee_fname, '3FJSei8zPx').toString(CryptoJS.enc.Utf8);
+            let lname = CryptoJS.AES.decrypt(trainee.trainee_lname, '3FJSei8zPx').toString(CryptoJS.enc.Utf8);
             console.log(trainee);
             console.log("encrypted start: "+ trainee.trainee_start_date);
             console.log("encrypted start: "+ trainee.trainee_bench_end_date);
 			console.log("start: "+bursary_start);
             console.log("end: "+bench_end.format("MM"));
-			console.log("pay for bank holidays: " + bank)
+			console.log("pay for bank holidays: " + bank);
             if(bursary == "False"){
                 trainee.trainee_days_worked = CryptoJS.AES.encrypt(0, '3FJSei8zPx').toString();;
                 trainee.save().then(trainee => {
                     res.json('Days worked updated!');
-                    logger.info("Trainee working days for current month updated (automatic) "+moment().format('h:mm:ss a'));
+                    logger.info(moment().format('h:mm:ss a') + " Trainee :"+ fname + " "+ lname +"working days for current month updated (automatic) ");
                 })
             }else if(currentMonth.isBefore(bursary_start, 'month')){
                 console.log("Bursary starting in July, 0 days");
                 trainee.trainee_days_worked = CryptoJS.AES.encrypt(0, '3FJSei8zPx').toString();
                 trainee.save().then(trainee => {
                     res.json('Days worked updated!');
-                    logger.info("Trainee working days for current month updated (automatic) "+moment().format('h:mm:ss a'));
+                    logger.info(moment().format('h:mm:ss a') + " Trainee :"+ fname + " "+ lname +" working days for current month updated (automatic) ");
                 })
             }else if(currentMonth.isAfter(bench_end, 'month')){
                 console.log("Bursary ending in April, 0 days");
                 trainee.trainee_days_worked = CryptoJS.AES.encrypt(0, '3FJSei8zPx').toString();
                 trainee.save().then(trainee => {
                     res.json('Days worked updated!');
-                    logger.info("Trainee working days for current month updated (automatic) "+moment().format('h:mm:ss a'));
+                    logger.info(moment().format('h:mm:ss a') + " Trainee :"+ fname + " "+ lname +" working days for current month updated (automatic) ");
+                })
+            }else if(bursary_start.isSame(currentMonth, 'month')&&bench_end.isSame(currentMonth, 'month')){
+                let bankHolidays = 0;
+                if(bank === true){
+                    bankHolidays = england.holidays(bursary_start,bench_end).length
+                    console.log(bankHolidays);
+                }
+                let start = moment(moment(CryptoJS.AES.decrypt(trainee.trainee_start_date, '3FJSei8zPx').toString(CryptoJS.enc.Utf8)).toDate(), "YYYY-MM-DD"); 
+                let end = moment(moment(CryptoJS.AES.decrypt(trainee.trainee_bench_end_date, '3FJSei8zPx').toString(CryptoJS.enc.Utf8)).toDate(), "YYYY-MM-DD");
+                let workedDays = 1 + moment(start).businessDiff(end) - bankHolidays;
+                console.log('current month is start date month, days worked: ' + workedDays);
+                console.log(start);
+                console.log(end);
+                trainee.trainee_days_worked = CryptoJS.AES.encrypt(workedDays.toString(), '3FJSei8zPx').toString();
+                trainee.save().then(trainee => {
+                    res.json('Days worked updated!');
+                    logger.info(moment().format('h:mm:ss a') + " Trainee working days for current month updated (automatic)")
                 })
             }else if(bursary_start.isSame(currentMonth, 'month')){
 				let bankHolidays = 0;
@@ -298,7 +326,7 @@ traineeRoutes.route('/daysToWork').post(function(req, res){
                 trainee.trainee_days_worked = CryptoJS.AES.encrypt(workedDays.toString(), '3FJSei8zPx').toString();
                 trainee.save().then(trainee => {
                     res.json('Days worked updated!');
-                    logger.info("Trainee working days for current month updated (automatic) "+moment().format('h:mm:ss a'))
+                    logger.info(moment().format('h:mm:ss a') + " Trainee :"+ fname + " "+ lname +" working days for current month updated (automatic) ")
                 })
             }else if(bench_end.isSame(currentMonth, "month")){
 				let bankHolidays = 0;
@@ -312,7 +340,7 @@ traineeRoutes.route('/daysToWork').post(function(req, res){
                 trainee.trainee_days_worked = CryptoJS.AES.encrypt(workedDays.toString(), '3FJSei8zPx').toString();
                 trainee.save().then(trainee => {
                     res.json('Days worked updated!');
-                    logger.info("Trainee working days for current month updated (automatic) "+moment().format('h:mm:ss a'))
+                    logger.info(moment().format('h:mm:ss a') + " Trainee :"+ fname + " "+ lname +" working days for current month updated (automatic)");
                 })
             }
             else{
@@ -329,7 +357,7 @@ traineeRoutes.route('/daysToWork').post(function(req, res){
 				trainee.trainee_days_worked = CryptoJS.AES.encrypt(workedDays.toString(), '3FJSei8zPx').toString();
 					trainee.save().then(trainee => {
                     res.json('Days worked updated!');
-                    logger.info("Trainee working days for current month updated (automatic) "+moment().format('h:mm:ss a'))
+                    logger.info(moment().format('h:mm:ss a') + " Trainee :"+ fname + " "+ lname +" working days for current month updated (automatic) ")
                 })
             }
     }
@@ -338,7 +366,7 @@ traineeRoutes.route('/daysToWork').post(function(req, res){
 
 //adds new trainee to database
 traineeRoutes.route('/add').post(function(req, res) {
-    let email = req.body.trainee_email;
+    let email = req.body.trainee_email.toLowerCase();
     let staff = req.body.added_By;
     let logger = databaseLogger.createLogger(email);
     console.log("adding a trainee req.body : ");
@@ -368,25 +396,30 @@ traineeRoutes.route('/add').post(function(req, res) {
     let trainee = new Trainee(req.body);
     trainee.save()
         .then(trainee => {
-			console.log('User: ' + trainee.added_By + ' has created a new trainee: '+ trainee._id);
+			console.log('User: ' + trainee.added_By + ' has created a new trainee: '+ req.body.trainee_fname + " "+ req.body.trainee_lname);
             console.log('An email is being sent to ' + trainee._id );
-            logger.info('User: ' + staff + ' has created a new trainee: '+ email + " "+moment().format('h:mm:ss a'));
-            logger.verbose('An email is being sent to ' + email + " "+ moment().format('h:mm:ss a'));
-			winston.info('User: ' + staff + ' has created a new trainee: '+ email + " " + moment().format('h:mm:ss a'));
-			winston.info('An email is being sent to ' + email + " "+ moment().format('h:mm:ss a'));
+            logger.info(moment().format('h:mm:ss a') + ' - Changed By('+staff+"): "+' has created a new trainee: '+ CryptoJS.AES.decrypt(req.body.trainee_fname, '3FJSei8zPx').toString(CryptoJS.enc.Utf8) + " " + CryptoJS.AES.decrypt(trainee.trainee_lname, '3FJSei8zPx').toString(CryptoJS.enc.Utf8));
+            logger.verbose(moment().format('h:mm:ss a') + ' An email is being sent to '+ req.body.trainee_fname + " " + req.body.trainee_lname + " "+ moment().format('h:mm:ss a'));
+			winston.info(moment().format('h:mm:ss a') + ' - Changed By('+staff+"): "+ ' has created a new trainee: '+ email + " " + moment().format('h:mm:ss a'));
+			winston.info(moment().format('h:mm:ss a') + ' An email is being sent to ' + email);
             res.status(200).json({'trainee': 'Trainee added successfully'});
 			
         })
         .catch(err => {
             res.status(205).send('Adding new trainee failed');
 			console.log(err);
-            winston.error('Adding new trainee failed. Error: '+err +" "+moment().format('h:mm:ss a'));
-            logger.error('User '+staff + " attempted to remake trainee with same email "+moment().format('h:mm:ss a'));
+            winston.error(moment().format('h:mm:ss a')+' - Changed By('+staff+"): "+' Adding new trainee failed. Error: '+err);
+            logger.error(moment().format('h:mm:ss a')+' - Changed By('+staff+"): "+" attempted to remake trainee with same email ");
         });
 });
 
 //deletes a trainee by id
-traineeRoutes.route('/delete/:id').get(function(req, res) {
+traineeRoutes.route('/delete/:id').post(function(req, res) {
+    let name;
+    User.findById(req.body.addedBy, function (err, user) {
+        name = CryptoJS.AES.decrypt(user.fname, 'c9nMaacr2Y').toString(CryptoJS.enc.Utf8) + " "+CryptoJS.AES.decrypt(user.lname, 'c9nMaacr2Y').toString(CryptoJS.enc.Utf8);
+    })
+    
     Trainee.findById(req.params.id, function(err, trainee) {
         if(!trainee){
             res.status(404).send("trainee is not found");
@@ -395,25 +428,32 @@ traineeRoutes.route('/delete/:id').get(function(req, res) {
             let email = CryptoJS.AES.decrypt(trainee.trainee_email
                                             , CryptoJS.enc.Hex.parse("253D3FB468A0E24677C28A624BE0F939")
                                             , {iv: CryptoJS.enc.Hex.parse("00000000000000000000000000000000")})
-                                            .toString(CryptoJS.enc.Utf8)
+                                            .toString(CryptoJS.enc.Utf8);
             let logger = databaseLogger.createLogger(email);
+            let fname = CryptoJS.AES.decrypt(trainee.trainee_fname, '3FJSei8zPx').toString(CryptoJS.enc.Utf8);
+            let lname = CryptoJS.AES.decrypt(trainee.trainee_lname, '3FJSei8zPx').toString(CryptoJS.enc.Utf8);
             trainee.status = CryptoJS.AES.encrypt('Suspended', '3FJSei8zPx').toString();
             trainee.save().then(trainee => {
                 res.json('Trainee deleted');
-                winston.info('Trainee: '+email+ ' has been suspended '+moment().format('h:mm:ss a'))
-                logger.info('Trainee: '+email+ ' has been suspended '+moment().format('h:mm:ss a'))
+                winston.info(moment().format('h:mm:ss a') +' - Changed By('+name+"): "+ 'Trainee: '+email+ ' has been suspended ')
+                logger.info(moment().format('h:mm:ss a') +' - Changed By('+name+"): "+' Trainee: '+fname +" " + lname+ ' has been suspended ')
             })
             .catch(err => {
                 res.status(400).send("Delete not possible");
-                winston.error('Trainee:'+email+' could not be suspended. Error: ' + err +" "+moment().format('h:mm:ss a'))
-                logger.error('Trainee:'+email+' could not be suspended. Error: ' + err + " "+moment().format('h:mm:ss a'))
+                winston.error(moment().format('h:mm:ss a') +' - Changed By('+name+"): "+'Trainee:'+email+' could not be suspended. Error: ' + err)
+                logger.error(moment().format('h:mm:ss a') + ' - Changed By('+name+"): "+' Trainee:'+fname + " " + lname+' could not be suspended. Error: ' + err)
             });
         }
     });       
 });
 
 //reactivates a deleted a trainee by id
-traineeRoutes.route('/reactivate/:id').get(function(req,res){
+traineeRoutes.route('/reactivate/:id').post(function(req,res){
+    let name;
+    User.findById(req.body.addedBy, function (err, user) {
+        name = CryptoJS.AES.decrypt(user.fname, 'c9nMaacr2Y').toString(CryptoJS.enc.Utf8) + " "+CryptoJS.AES.decrypt(user.lname, 'c9nMaacr2Y').toString(CryptoJS.enc.Utf8);
+    })
+    
     Trainee.findById(req.params.id, function(err, trainee) {
         if(!trainee ){
             res.status(404).send("trainee is not found");
@@ -424,6 +464,8 @@ traineeRoutes.route('/reactivate/:id').get(function(req,res){
                 , {iv: CryptoJS.enc.Hex.parse("00000000000000000000000000000000")})
                 .toString(CryptoJS.enc.Utf8)
             let logger = databaseLogger.createLogger(email);
+            let fname = CryptoJS.AES.decrypt(trainee.trainee_fname, '3FJSei8zPx').toString(CryptoJS.enc.Utf8);
+            let lname = CryptoJS.AES.decrypt(trainee.trainee_lname, '3FJSei8zPx').toString(CryptoJS.enc.Utf8);
             if(trainee.trainee_bank_name != null){
                 trainee.status = CryptoJS.AES.encrypt('Active', '3FJSei8zPx').toString();
             }
@@ -432,13 +474,13 @@ traineeRoutes.route('/reactivate/:id').get(function(req,res){
             }
             trainee.save().then(trainee => {
                 res.json('Trainee reactivated');
-                winston.info('Trainee: '+email+ ' has been reactivated '+moment().format('h:mm:ss a'));
-                logger.info('Trainee: '+email+ ' has been reactivated '+moment().format('h:mm:ss a'));
+                winston.info(moment().format('h:mm:ss a') + ' - Changed By('+name+"): "+' Trainee: '+email+ ' has been reactivated ');
+                logger.info(moment().format('h:mm:ss a') + ' - Changed By('+name+"): "+' Trainee: '+fname+ " " + lname+ ' has been reactivated ');
             })
             .catch(err => {
                 res.status(400).send("Reactivation not possible");
-                 winston.error('Trainee:'+trainee._id+' could not be reactivated. Error: ' + err + " "+moment().format('h:mm:ss a'));
-                 logger.error('Trainee:'+trainee._id+' could not be reactivated. Error: ' + err + " "+moment().format('h:mm:ss a'));
+                 winston.error(moment().format('h:mm:ss a')+' - Changed By('+name+"): "+'Trainee:'+trainee._id+' could not be reactivated. Error: ' + err);
+                 logger.error(moment().format('h:mm:ss a')+' - Changed By('+name+"): "+' Trainee:'+trainee._id+' could not be reactivated. Error: ' + err);
             });
         }
 
@@ -469,13 +511,13 @@ traineeRoutes.route('/update/:id').post(function(req, res) {
 
             trainee.save().then(trainee => {
                 res.json('Trainee updated!');
-                winston.info('Trainee: '+email+' has updated their bank details '+moment().format('h:mm:ss a'));
-				logger.info('Trainee: '+email+' has updated their bank details '+moment().format('h:mm:ss a'));                
+                winston.info(moment().format('h:mm:ss a') + ' Trainee: '+email+' has updated their bank details ');
+				logger.info(moment().format('h:mm:ss a') + ' Trainee: '+req.body.trainee_fname + " " + req.body.trainee_lname+' has updated their bank details ');                
 				})
             .catch(err => {
                 res.status(400).send("Update not possible");
-                winston.error('Trainee: '+email+' tried to update there details but got error: ' + err + " "+ moment().format('h:mm:ss a'))
-                logger.error('Trainee: '+email+' tried to update there details but got error: ' + err + " "+ moment().format('h:mm:ss a'))
+                winston.error(moment().format('h:mm:ss a') + ' Trainee: '+email+' tried to update there details but got error: ' + err)
+                logger.error(moment().format('h:mm:ss a') + ' Trainee: '+req.body.trainee_fname + " " + req.body.trainee_lname+' tried to update there details but got error: ' + err)
             });
         }    
     });
@@ -483,7 +525,10 @@ traineeRoutes.route('/update/:id').post(function(req, res) {
 
 //gets trainee by id and updates start/end date
 traineeRoutes.route('/editDates/:id').post(function(req, res) {
-    console.log(req);
+    let name;
+    User.findById(req.body.addedBy, function (err, user) {
+        name = CryptoJS.AES.decrypt(user.fname, 'c9nMaacr2Y').toString(CryptoJS.enc.Utf8) + " "+CryptoJS.AES.decrypt(user.lname, 'c9nMaacr2Y').toString(CryptoJS.enc.Utf8);
+    })
     Trainee.findById(req.params.id, function(err, trainee) {
         if (!trainee){
             res.status(404).send("data is not found");
@@ -497,17 +542,19 @@ traineeRoutes.route('/editDates/:id').post(function(req, res) {
             trainee.trainee_start_date = CryptoJS.AES.encrypt(req.body.trainee_start_date, '3FJSei8zPx').toString();
             trainee.trainee_end_date = CryptoJS.AES.encrypt(req.body.trainee_end_date, '3FJSei8zPx').toString();
 			trainee.trainee_bench_start_date = CryptoJS.AES.encrypt(req.body.trainee_bench_start_date, '3FJSei8zPx').toString();
-			trainee.trainee_bench_end_date = CryptoJS.AES.encrypt(req.body.trainee_bench_end_date, '3FJSei8zPx').toString();
+            trainee.trainee_bench_end_date = CryptoJS.AES.encrypt(req.body.trainee_bench_end_date, '3FJSei8zPx').toString();
+            let fname = CryptoJS.AES.decrypt(trainee.trainee_fname, '3FJSei8zPx').toString(CryptoJS.enc.Utf8);
+            let lname = CryptoJS.AES.decrypt(trainee.trainee_lname, '3FJSei8zPx').toString(CryptoJS.enc.Utf8);
 			
             trainee.save().then(trainee => {
                 res.json('Trainee updated!');
-                winston.info('Trainee: '+ email+ ' has had their starting/ending dates changed '+moment().format('h:mm:ss a'));
-                logger.info('Trainee: '+ email+ ' has had their starting/ending dates changed '+moment().format('h:mm:ss a'));
+                winston.info(moment().format('h:mm:ss a') +' - Changed By('+name+"): "+ 'Trainee: '+ email+ ' has had their starting/ending dates changed to: start('+req.body.trainee_start_date+'), end('+req.body.trainee_end_date+'), bench('+req.body.trainee_bench_start_date+'), benchEnd('+req.body.trainee_bench_end_date+')');
+                logger.info(moment().format('h:mm:ss a') +' - Changed By('+name+"): "+ 'Trainee: '+ fname + " "+ lname +' has had their starting/ending dates changed to: start('+req.body.trainee_start_date+'), end('+req.body.trainee_end_date+'), bench('+req.body.trainee_bench_start_date+'), benchEnd('+req.body.trainee_bench_end_date+')');
             })
             .catch(err => {
                 res.status(400).send("Update not possible");
-                winston.error('Trainee: '+ email+ ' has not been updated due to error: '+err + " " + moment().format('h:mm:ss a'));
-                logger.error('Trainee: '+ email+ ' has not been updated due to error: '+err + " " + moment().format('h:mm:ss a'));
+                winston.error(moment().format('h:mm:ss a') + ' - Changed By('+name+"): "+'Trainee: '+ email+ ' has not been updated due to error: '+err);
+                logger.error(moment().format('h:mm:ss a') + ' - Changed By('+name+"): "+'Trainee: '+ fname + " " + lname +' has not been updated due to error: '+err);
             });
         }
     });
@@ -515,7 +562,10 @@ traineeRoutes.route('/editDates/:id').post(function(req, res) {
 
 //gets trainee by id and updates bursary status and bursary amount
 traineeRoutes.route('/editBursary/:id').post(function(req, res){
-    console.log(req);
+    let name;
+    User.findById(req.body.addedBy, function (err, user) {
+        name = CryptoJS.AES.decrypt(user.fname, 'c9nMaacr2Y').toString(CryptoJS.enc.Utf8) + " "+CryptoJS.AES.decrypt(user.lname, 'c9nMaacr2Y').toString(CryptoJS.enc.Utf8);
+    })
     Trainee.findById(req.params.id, function(err, trainee){
         if(!trainee){
             res.status(404).send("data is not found");
@@ -528,15 +578,17 @@ traineeRoutes.route('/editBursary/:id').post(function(req, res){
             let logger = databaseLogger.createLogger(email);
             trainee.bursary =  CryptoJS.AES.encrypt(req.body.trainee_bursary, '3FJSei8zPx').toString();
             trainee.bursary_amount = CryptoJS.AES.encrypt(req.body.trainee_bursary_amount.toString(), '3FJSei8zPx').toString();
+            let fname = CryptoJS.AES.decrypt(trainee.trainee_fname, '3FJSei8zPx').toString(CryptoJS.enc.Utf8);
+            let lname = CryptoJS.AES.decrypt(trainee.trainee_lname, '3FJSei8zPx').toString(CryptoJS.enc.Utf8);
 
             trainee.save().then(trainee => {
                 res.json('Trainee updated!');
-                winston.info('Trainee: '+ email+ ' has had their bursary status and amount changed '+moment().format('h:mm:ss a'));
-                logger.info('Trainee: '+ email+ 'has had their bursary status and amount changed '+moment().format('h:mm:ss a'));
+                winston.info(moment().format('h:mm:ss a') +' - Changed By('+name+"): "+ 'Trainee: '+ email+ ' has had their bursary status and amount changed to: bursary('+req.body.trainee_bursary+'), bursaryAmount('+req.body.trainee_bursary_amount.toString()+')');
+                logger.info(moment().format('h:mm:ss a') +' - Changed By('+name+"): "+ 'Trainee: '+ fname + " " + lname +' has had their bursary status and/or amount changed to: bursary('+req.body.trainee_bursary+'), bursaryAmount('+req.body.trainee_bursary_amount.toString()+')');
             }).catch(err =>{
                 res.status(400).send("Update not possible");
-                winston.error('Trainee: '+ email+ ' has not been updated due to error: '+err +" "+moment().format('h:mm:ss a'));
-                logger.error('Trainee: '+ email+ ' has not been updated due to error: '+err + " "+moment().format('h:mm:ss a'));
+                winston.error(moment().format('h:mm:ss a') + ' - Changed By('+name+"): "+' Trainee: '+ email+ ' has not been updated due to error: '+err);
+                logger.error(moment().format('h:mm:ss a') + ' - Changed By('+name+"): "+' Trainee: '+ fname + " " + lname +' has not been updated due to error: '+err);
             });
         }
     })
@@ -548,10 +600,10 @@ traineeRoutes.route('/reset/:token').get(function(req, res) {
       console.log(Date.now())
       if (trainee == null) {
         console.error('password reset link is invalid or has expired');
-		winston.error('password reset link was invalid for the trainee '+moment().format('h:mm:ss a'))
+		winston.error(moment().format('h:mm:ss a') + ' password reset link was invalid for the trainee ')
         res.status(403).send('password reset link is invalid or has expired');
       } else {
-		  winston.info(trainee._id + ' recevied reset link at status 200')
+		  winston.info(moment().format('h:mm:ss a') + " " + trainee._id + ' recevied reset link at status 200')
         res.status(200).send({
           trainee_id: trainee._id,
           message: 'password reset link a-ok',
@@ -565,11 +617,16 @@ traineeRoutes.route('/removeToken/:token').get(function(req, res) {
       console.log(Date.now())
       if (!trainee) {
         console.error('No token found');
-		winston.error('No token found '+moment().format('h:mm:ss a'))
+		winston.error(moment().format('h:mm:ss a') + ' No token found ')
         res.status(403).send('No token found');
       } 
       else {
         trainee.trainee_password_expires = Date.now();
+        let email = CryptoJs.AES.decrypt(trainee.trainee_email).toString(CryptoJS.enc.Utf8);
+        let fname = CryptoJS.AES.decrypt(trainee.trainee_fname, '3FJSei8zPx').toString(CryptoJS.enc.Utf8);
+        let lname = CryptoJS.AES.decrypt(trainee.trainee_lname, '3FJSei8zPx').toString(CryptoJS.enc.Utf8);
+        let logger = databaseLogger.createLogger(email);
+        logger.info(moment().format('h:mm:ss a') + ' Trainee :'+ fname + " "+ lname + "'s token has now been removed");
         trainee.save().then(()=>
           {res.status(200).send("Token destroyed")}
         )      
@@ -593,10 +650,11 @@ traineeRoutes.route('/send-email').post(function(req, res) {
             trainee.trainee_password_expires = Date.now() + 86400000;
             trainee.save().then(()=>
 			console.log('email token has been generated'),
-            winston.info('Email has been sent to ' + req.body.trainee_email + " "+moment().format('h:mm:ss a')),
-            logger.verbose('Email has been sent to ' + req.body.trainee_email + " "+moment().format('h:mm:ss a'))
+            winston.info(moment().format('h:mm:ss a') + ' Email has been sent to ' + req.body.trainee_email),
+            logger.verbose(moment().format('h:mm:ss a') + ' Email has been sent to ' + req.body.trainee_email)
             );
             let fname = CryptoJS.AES.decrypt(trainee.trainee_fname, '3FJSei8zPx').toString(CryptoJS.enc.Utf8);
+            let lname = CryptoJS.AES.decrypt(trainee.trainee_lname, '3FJSei8zPx').toString(CryptoJS.enc.Utf8);
             var transporter = nodeMailer.createTransport({
                 service: 'Gmail',
                 auth: {
@@ -615,7 +673,9 @@ traineeRoutes.route('/send-email').post(function(req, res) {
                 if (error) {
                     return console.log(error);
                 }
+
                 console.log('Message %s sent: %s', info.messageId, info.response);
+                logger.info(moment().format('h:mm:ss a') + ' Email has been sent to '+ fname + " "+ lname+ " to the email : " + req.body.trainee_email)
                 res.status(200).json({'email': 'Email Sent'});
             });
         }
@@ -643,14 +703,16 @@ traineeRoutes.route('/update-password/:token').post(function(req, res) {
                   req.body.trainee_password = hash;
                   trainee.trainee_password = req.body.trainee_password;
                   trainee.save().then(trainee => {
+                    trainee.trainee_fname = CryptoJS.AES.decrypt(trainee.trainee_fname, '3FJSei8zPx').toString(CryptoJS.enc.Utf8);
+                    trainee.trainee_lname = CryptoJS.AES.decrypt(trainee.trainee_lname, '3FJSei8zPx').toString(CryptoJS.enc.Utf8);
                     res.json('Password updated!');
-                    logger.info(email + ' has updated their password '+moment().format('h:mm:ss a'))
-					winston.info(email + 'has updated thier password '+moment().format('h:mm:ss a'));
+                    logger.info(moment().format('h:mm:ss a') + " " +trainee.trainee_fname+ ' '+trainee.trainee_lname + ' has updated their password ')
+					winston.info(moment().format('h:mm:ss a') + " " + email + 'has updated thier password ');
                 })
                 .catch(err => {
                     res.status(400).send("Update not possible");
-                    winston.error('Trainee: '+email+' could not update their password. Error: ' + err + " "+moment().format('h:mm:ss a'));
-                    logger.error('Trainee: '+email+' could not update their password. Error: ' + err + " "+moment().format('h:mm:ss a'));
+                    winston.error(moment().format('h:mm:ss a') + ' Trainee: '+email+' could not update their password. Error: ' + err);
+                    logger.error(moment().format('h:mm:ss a') + ' Trainee: '+trainee.trainee_fname+ ' '+trainee.trainee_lname +' could not update their password. Error: ' + err);
                 });
                 });
             });
@@ -683,6 +745,7 @@ traineeRoutes.route('/findBank').post(function(req,res) {
                     similar_sortcodes.push("No similar sort codes found")
                 }
                 res.json({Match: false, OtherCodes: similar_sortcodes});
+                winston.info(moment().format('h:mm:ss a') + ' Returned sortcodes');
               });
         }
         else{
@@ -700,9 +763,11 @@ traineeRoutes.route('/addBank').post(function(req, res) {
     bank.save()
         .then(trainee => {
             res.status(200).json({'bank': 'Sortcode added successfully'});
+            winston.info(moment().format('h:mm:ss a') + ' A new bank/sortcode has been added successfully');
         })
         .catch(err => {
             res.status(205).send('Adding new Sortcode failed');
+            winston.error(moment().format('h:mm:ss a') + ' Adding a bank/sortcode has not been added successfully');
         });
 });
 
@@ -788,10 +853,12 @@ traineeRoutes.route('/monthlyReport').post(function(req, res) {
                         report.status = CryptoJS.AES.encrypt("PendingApproval", '3FJSei8zPx').toString();
                         report.save().then(report =>{
                             res.json('Success');
+                            winston.info(moment().format('h:mm:ss a') + ' Report was successfully saved with status PendingApproval');
                         });
                     }
                     else{
                         res.json('Report cannot be created');
+                        winston.error(moment().format('h:mm:ss a') + ' Report creation was unsuccessful');
                     }
                 }
                 else{
@@ -799,10 +866,12 @@ traineeRoutes.route('/monthlyReport').post(function(req, res) {
                         report.reportTrainees = reportTrainees;
                         report.save().then(report => {
                             res.json('Successfully Updated');
+                            winston.info(moment().format('h:mm:ss a') + ' Report update was successful');
                         })
                     }
                     else{
                         res.json('Report cannot be updated');
+                        winston.error(moment().format('h:mm:ss a') + ' Report update was not successful');
                     }
                 }
             });
@@ -819,6 +888,7 @@ traineeRoutes.route('/getMonthlyReport').post(function(req, res) {
         if(!report){
             // returns report is not ready yet
             res.json('no report');
+            winston.error(moment().format('h:mm:ss a') + ' Report was not gotten');
         } else{
             // report.totalDays = CryptoJS.AES.decrypt(report.totalDays, '3FJSei8zPx').toString(CryptoJS.enc.Utf8);
             // report.totalDailyPayments = CryptoJS.AES.decrypt(report.totalDailyPayments, '3FJSei8zPx').toString(CryptoJS.enc.Utf8);
@@ -865,11 +935,13 @@ traineeRoutes.route('/getMonthlyReport').post(function(req, res) {
             })
 
             res.json(report);
+            winston.info(moment().format('h:mm:ss a') + ' Report for : '+ report.month+' was returned');
         }
     })
 })
 
 //update report status
+//will need to be logged and saved to the staff logs in the future.
 traineeRoutes.route('/monthlyReport/updateStatus').post(function(req, res) {
     monthlyReports.findOne({month: req.body.month}, function(err, report){
         if(!report){
@@ -880,12 +952,14 @@ traineeRoutes.route('/monthlyReport/updateStatus').post(function(req, res) {
                 report.status = CryptoJS.AES.encrypt('AdminApproved', '3FJSei8zPx').toString();
                 report.save().then(report => {
                     res.json('Sucessfully updated ');
+                    winston.info(moment().format('h:mm:ss a') + ' Report status for : '+ report.month+' was admin approved');
                 })
             }
             else if(req.body.user_role === "finance"){
                 report.status = CryptoJS.AES.encrypt('FinanceApproved', '3FJSei8zPx').toString();
                 report.save().then(report => {
                     res.json('Sucessfully updated');
+                    winston.info(moment().format('h:mm:ss a') + ' Report status for : '+ report.month+' was finance approved');
                 })
             }
             else{
@@ -900,14 +974,16 @@ traineeRoutes.route('/get/allTech/').get(function(req, res) {
         let logger = databaseLogger.createLogger("universal");
         if (err) {
             console.log(err);
-            winston.error(err + " "+moment().format('h:mm:ss a'));
-            logger.error(err + " "+moment().format('h:mm:ss a'));
+            winston.error(moment().format('h:mm:ss a') + " " + err);
+            logger.error(moment().format('h:mm:ss a') + " " +err);
         }else{
             let names = [];
             tech.map(function(currentTech, i){
                 names.push({value: currentTech.techName, label: currentTech.techName});
             });
             res.json(names);
+            winston.info(moment().format('h:mm:ss a') + " all technologies were returned");
+            logger.info(moment().format('h:mm:ss a') + " all technologies were returned");
         }
     })
 });
@@ -919,12 +995,12 @@ traineeRoutes.route('/addTech').post(function(req, res) {
             newTech.techName = req.body.techName;
             newTech.save().then(newTech => {
                 res.json('New tech has been added');
-                winston.info('New tech: '+ newTech.techName+ ' has been added '+moment().format('h:mm:ss a'));
+                winston.info(moment().format('h:mm:ss a') + ' New tech: '+ newTech.techName+ ' has been added ');
             })
             .catch(err => {
                 res.status(400).send("Could not updated Days Worked");
                 console.log(err);
-                winston.error('New tech adding: '+ newTech.techName+ ' has not been added due to error: '+err +" "+ moment().format('h:mm:ss a'))
+                winston.error(moment().format('h:mm:ss a') + ' New tech adding: '+ newTech.techName+ ' has not been added due to error: '+err)
             });
         }
     })
@@ -938,12 +1014,12 @@ traineeRoutes.route('/addIntake').post(function(req, res) {
             newIntake.intakeName = req.body.intakeName;
             newIntake.save().then(newIntake => {
                 res.json('New Intake has been added');
-                winston.info('New Intake added '+moment().format('h:mm:ss a'));
+                winston.info(moment().format('h:mm:ss a') + ' New Intake added ');
             })
             .catch(err => {
                 res.status(400).send("Could not add new Intake");
                 console.log(err);
-                winston.error('New Intake adding: '+ newIntake.intakeName + ' has not been ')
+                winston.error(+moment().format('h:mm:ss a') + ' New Intake adding: '+ newIntake.intakeName + ' has not been ')
             });
         }
     })
@@ -953,7 +1029,7 @@ traineeRoutes.route('/get/Intakes/').get(function(req, res) {
     Intake.find({}, function(err, intake) {
         if(err){
             console.log(err);
-            winston.error(err + " "+moment().format('h:mm:ss a'));
+            winston.error(moment().format('h:mm:ss a') + " " +err);
             res.status(400).send("Issue getting trainee");
         }
         else{
@@ -965,5 +1041,48 @@ traineeRoutes.route('/get/Intakes/').get(function(req, res) {
         }
     })
 })
+
+traineeRoutes.route('/update-my-password/:id').post(function(req, res) {
+    Trainee.findById(req.params.id, function(err, trainee) {
+        if (!trainee)
+            res.status(404).send("data is not found");
+        else{
+            let email = CryptoJS.AES.decrypt(trainee.trainee_email
+                , CryptoJS.enc.Hex.parse("253D3FB468A0E24677C28A624BE0F939")
+                , {iv: CryptoJS.enc.Hex.parse("00000000000000000000000000000000")})
+                .toString(CryptoJS.enc.Utf8)
+            let logger = databaseLogger.createLogger(email);
+
+             Trainee.comparePassword(req.body.previous, trainee.trainee_password, function(err, isMatch){
+                if(err){
+                    logger.error('Unable to login, Error: ' + err);
+                    res.send('Something went wrong!');
+                }
+                else if(!isMatch){
+                    winston.verbose('trainee: ' + email + ' entered wrong password');
+                    res.send('Old password did not match!');
+                }
+                else{
+                    bcrypt.genSalt(10, function(err, salt) {
+                        bcrypt.hash(req.body.trainee_password, salt, function(err, hash) {
+                          req.body.trainee_password = hash;
+                          trainee.trainee_password = req.body.trainee_password;
+                          trainee.save().then(trainee => {
+                            res.json('Password updated!');
+                            logger.info(email + ' has updated their password '+moment().format('h:mm:ss a'));
+                            winston.info(email + 'has updated thier password '+moment().format('h:mm:ss a'));
+                        })
+                        .catch(err => {
+                            res.status(400).send("Update not possible");
+                            winston.error('Trainee: '+email+' could not update their password. Error: ' + err + " "+moment().format('h:mm:ss a'));
+                            logger.error('Trainee: '+email+' could not update their password. Error: ' + err + " "+moment().format('h:mm:ss a'));
+                        });
+                        });
+                    });
+                }
+            })
+        }     
+    });
+});
 
 module.exports = traineeRoutes;
