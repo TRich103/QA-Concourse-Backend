@@ -594,13 +594,13 @@ adminRoutes.route('/removeExpenses/:id').post(function (req, res) {
                                     req.body.password = hash;
                                     staff.password = req.body.password;
                                     staff.save().then(staff => {
-                                    winston.info('User: '+email+' has updated thier password ')
-                                    logger.info('User: '+email+' has updated thier password ')
+                                    winston.info(moment().format('h:mm:ss a')+' User: '+email+' has updated thier password ')
+                                    logger.info(moment().format('h:mm:ss a')+ 'User: '+email+' has updated thier password ')
                                     res.json('Password updated!');
                                 })
                                 .catch(err => {
-                                    winston.error('User: '+email+' could not update thier password. Error: ' + err);
-                                    logger.error('User: '+email+' could not update thier password. Error: ' + err);
+                                    winston.error(moment().format('h:mm:ss a') +' User: '+email+' could not update thier password. Error: ' + err);
+                                    logger.error(moment().format('h:mm:ss a')+' User: '+email+' could not update thier password. Error: ' + err);
                                     res.status(400).send("Update not possible");
                                 });
                                 });
