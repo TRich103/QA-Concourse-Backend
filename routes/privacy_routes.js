@@ -42,7 +42,9 @@ privacyRoutes.get('/accept/:id', function(req, res){
             if(!trainee){
                 User.findById(req.params.id, function(err, user){
                     if(!user){
+
                         winston.error(moment().format('h:mm:ss a')+" could not find user or trainee!");
+
                     }
                     else{
                         let email = CryptoJS.AES.decrypt(user.email
@@ -55,8 +57,10 @@ privacyRoutes.get('/accept/:id', function(req, res){
                         let newRecord = new PrivacyRecords({ permission: permission, user: logUser });
                         console.log(newRecord);
                         newRecord.save();
+
                         logger.info(moment().format('h:mm:ss a') + ' Privacy notice has been accepted ');
                         winston.info(moment().format('h:mm:ss a') + ' Privacy notice has been accepted ');
+
                         res.send('Success');
                     }
                 })

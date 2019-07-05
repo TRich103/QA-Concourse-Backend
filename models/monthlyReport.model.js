@@ -14,8 +14,14 @@ const MonthlySchema = new mongoose.Schema({
     type: String,
     //enums ['PendingApproval', 'AdminApproved', 'FinanceApproved']
     required: true
+  },
+  approvedBy: {
+	  type:String
+  },
+  financeApprove: {
+	  type:String
   }
-}
+ }
 );
 
 module.exports = mongoose.model('Monthly.Report', MonthlySchema);

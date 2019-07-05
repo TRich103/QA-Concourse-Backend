@@ -287,6 +287,23 @@ traineeRoutes.route('/daysToWork').post(function(req, res){
                     res.json('Days worked updated!');
                     logger.info(moment().format('h:mm:ss a') + " Trainee :"+ fname + " "+ lname +" working days for current month updated (automatic) ");
                 })
+            }else if(bursary_start.isSame(currentMonth, 'month')&&bench_end.isSame(currentMonth, 'month')){
+                let bankHolidays = 0;
+                if(bank === true){
+                    bankHolidays = england.holidays(bursary_start,bench_end).length
+                    console.log(bankHolidays);
+                }
+                let start = moment(moment(CryptoJS.AES.decrypt(trainee.trainee_start_date, '3FJSei8zPx').toString(CryptoJS.enc.Utf8)).toDate(), "YYYY-MM-DD"); 
+                let end = moment(moment(CryptoJS.AES.decrypt(trainee.trainee_bench_end_date, '3FJSei8zPx').toString(CryptoJS.enc.Utf8)).toDate(), "YYYY-MM-DD");
+                let workedDays = moment(start).businessDiff(end) - bankHolidays;
+                console.log('current month is start date month, days worked: ' + workedDays);
+                console.log(start);
+                console.log(end);
+                trainee.trainee_days_worked = CryptoJS.AES.encrypt(workedDays.toString(), '3FJSei8zPx').toString();
+                trainee.save().then(trainee => {
+                    res.json('Days worked updated!');
+                    logger.info("Trainee working days for current month updated (automatic)")
+                })
             }else if(currentMonth.isAfter(bench_end, 'month')){
                 console.log("Bursary ending in April, 0 days");
                 trainee.trainee_days_worked = CryptoJS.AES.encrypt(0, '3FJSei8zPx').toString();
@@ -733,6 +750,49 @@ traineeRoutes.route('/update-password/:token').post(function(req, res) {
     });
 });
 
+//updates trainee password
+traineeRoutes.route('/update-my-password/:id').post(function(req, res) {
+    Trainee.findById(req.params.id, function(err, trainee) {
+        if (!trainee)
+            res.status(404).send("data is not found");
+        else{
+            let email = CryptoJS.AES.decrypt(trainee.trainee_email
+                , CryptoJS.enc.Hex.parse("253D3FB468A0E24677C28A624BE0F939")
+                , {iv: CryptoJS.enc.Hex.parse("00000000000000000000000000000000")})
+                .toString(CryptoJS.enc.Utf8)
+            let logger = databaseLogger.createLogger(email);
+
+            Trainee.comparePassword(req.body.previous, trainee.trainee_password, function(err, isMatch){
+                if(err){
+                    logger.error('Unable to login, Error: ' + err);
+                    res.send('Something went wrong!');
+                }
+                else if(!isMatch){
+                    winston.verbose('trainee: ' + email + ' entered wrong password');
+                    res.send('Old password did not match!');
+                }
+                else{
+                    bcrypt.genSalt(10, function(err, salt) {
+                        bcrypt.hash(req.body.trainee_password, salt, function(err, hash) {
+                          req.body.trainee_password = hash;
+                          trainee.trainee_password = req.body.trainee_password;
+                          trainee.save().then(trainee => {
+                            res.json('Password updated!');
+                            logger.info(email + ' has updated their password '+moment().format('h:mm:ss a'));
+                            winston.info(email + 'has updated thier password '+moment().format('h:mm:ss a'));
+                        })
+                        .catch(err => {
+                            res.status(400).send("Update not possible");
+                            winston.error('Trainee: '+email+' could not update their password. Error: ' + err + " "+moment().format('h:mm:ss a'));
+                            logger.error('Trainee: '+email+' could not update their password. Error: ' + err + " "+moment().format('h:mm:ss a'));
+                        });
+                        });
+                    });
+                }
+            })
+        }     
+    });
+});
 traineeRoutes.route('/findBank').post(function(req,res) {
     sortcode = req.body.sort_code;
     SortCodeCollection.findOne({SortCode: sortcode}, function(err, bank) {
@@ -864,6 +924,8 @@ traineeRoutes.route('/monthlyReport').post(function(req, res) {
                         report.month = req.body.month;
                         report.reportTrainees = reportTrainees;
                         report.status = CryptoJS.AES.encrypt("PendingApproval", '3FJSei8zPx').toString();
+						report.approvedBy = CryptoJS.AES.encrypt(" ", '3FJSei8zPx').toString();
+						report.financeApprove = CryptoJS.AES.encrypt(" ", '3FJSei8zPx').toString();
                         report.save().then(report =>{
                             res.json('Success');
                             winston.info(moment().format('h:mm:ss a') + ' Report was successfully saved with status PendingApproval');
@@ -907,6 +969,8 @@ traineeRoutes.route('/getMonthlyReport').post(function(req, res) {
             // report.totalDailyPayments = CryptoJS.AES.decrypt(report.totalDailyPayments, '3FJSei8zPx').toString(CryptoJS.enc.Utf8);
             // report.totalAmount = CryptoJS.AES.decrypt(report.totalAmount, '3FJSei8zPx').toString(CryptoJS.enc.Utf8);
             report.status = CryptoJS.AES.decrypt(report.status, '3FJSei8zPx').toString(CryptoJS.enc.Utf8);
+			report.financeApprove = CryptoJS.AES.decrypt(report.financeApprove, '3FJSei8zPx').toString(CryptoJS.enc.Utf8);
+			report.approvedBy = CryptoJS.AES.decrypt(report.approvedBy, '3FJSei8zPx').toString(CryptoJS.enc.Utf8);
             report.reportTrainees.map(trainee =>{
                 var bytes  = CryptoJS.AES.decrypt(trainee.trainee_email, CryptoJS.enc.Hex.parse("253D3FB468A0E24677C28A624BE0F939"), {iv: CryptoJS.enc.Hex.parse("00000000000000000000000000000000")});
                 trainee.trainee_email = bytes.toString(CryptoJS.enc.Utf8);
@@ -962,6 +1026,7 @@ traineeRoutes.route('/monthlyReport/updateStatus').post(function(req, res) {
         }
         else{
             if(req.body.user_role === "admin"){
+				report.approvedBy = CryptoJS.AES.encrypt(req.body.approvedBy,'3FJSei8zPx' ).toString();
                 report.status = CryptoJS.AES.encrypt('AdminApproved', '3FJSei8zPx').toString();
                 report.save().then(report => {
                     res.json('Sucessfully updated ');
@@ -970,6 +1035,15 @@ traineeRoutes.route('/monthlyReport/updateStatus').post(function(req, res) {
             }
             else if(req.body.user_role === "finance"){
                 report.status = CryptoJS.AES.encrypt('FinanceApproved', '3FJSei8zPx').toString();
+				report.financeApprove = CryptoJS.AES.encrypt(req.body.financeApprove,'3FJSei8zPx' ).toString();
+                report.save().then(report => {
+                    res.json('Sucessfully updated ');
+                })
+            }
+			else if(req.body.user_role === "pending"){
+				report.approvedBy = CryptoJS.AES.encrypt(req.body.approvedBy,'3FJSei8zPx' ).toString();
+				report.financeApprove = CryptoJS.AES.encrypt(req.body.financeApprove,'3FJSei8zPx' ).toString();
+                report.status = CryptoJS.AES.encrypt('PendingApproval', '3FJSei8zPx').toString();
                 report.save().then(report => {
                     res.json('Sucessfully updated');
                     winston.info(moment().format('h:mm:ss a') + ' Report status for : '+ report.month+' was finance approved');

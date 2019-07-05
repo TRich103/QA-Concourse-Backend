@@ -1,4 +1,9 @@
-# QA-Concourse-Backend
+# QA-Concourse-Backend - BD-320-Route-User-update
+
+
+Description:
+Created an Admin route to edit staff details based on the staff users ID. The staff details that can be currently edited are the first last names and email.
+
 
 To Deploy:
 
@@ -24,4 +29,12 @@ The IP addresses can be localhost for a local deployment. Please use a Gmail acc
 
 ```
 node server.js
+```
+
+To run tests: 
+
+-Run:
+
+```
+npm test
 ```
