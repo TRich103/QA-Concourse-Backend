@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 const bcrypt = require('bcrypt');
+var CryptoJS = require("crypto-js");
 
 let Trainee = new Schema({
     trainee_fname: {
@@ -85,7 +86,6 @@ let Trainee = new Schema({
     },
     trainee_gender: {
         type: String,
-        required: true
     },
     trainee_uniName: {
         type: String,
@@ -99,7 +99,6 @@ let Trainee = new Schema({
     },
     trainee_chosenTech: {
         type: String,
-        required: true
     },
     trainee_intake: {
         type: String,
@@ -107,11 +106,9 @@ let Trainee = new Schema({
     },
     trainee_geo: {
         type: String,
-        required: true
     },
     trainee_clearance: {
         type: String,
-        required: true
     },
     trainee_businessEmail: {
         type: String
@@ -160,3 +157,36 @@ module.exports.comparePassword = function(traineePassword, hash, callback){
       callback(null, isMatch);
     });
   }
+
+//   trainee_gender: {
+//     trainee_uniName: {
+//     trainee_phone: {
+ 
+//     trainee_degree: {
+//     trainee_chosenTech: {
+//     trainee_intake:
+//     trainee_geo:
+//     trainee_clearance:
+//     trainee_businessEmail:
+//     trainee_aptitude_score:
+//     trainee_languages
+//     documents_signed
+//     sent_Agreement
+//     received_Agreement
+//     accomodation:
+//     java_test_Score
+//     MTE :
+//     date_Achieved
+
+test.updateMany({trainee_gender:null}, {$set:{trainee_gender: CryptoJS.AES.encrypt("", '3FJSei8zPx').toString()}});
+test.updateMany({trainee_uniName:null}, {$set:{trainee_uniName: CryptoJS.AES.encrypt("", '3FJSei8zPx').toString()}});
+test.updateMany({trainee_phone:null}, {$set:{trainee_phone: CryptoJS.AES.encrypt("", '3FJSei8zPx').toString()}});
+test.updateMany({trainee_degree:null}, {$set:{trainee_degree: CryptoJS.AES.encrypt("", '3FJSei8zPx').toString()}});
+test.updateMany({trainee_chosenTech:null}, {$set:{trainee_chosenTech: CryptoJS.AES.encrypt("", '3FJSei8zPx').toString()}});
+test.updateMany({trainee_intake:null}, {$set:{trainee_intake: CryptoJS.AES.encrypt("", '3FJSei8zPx').toString()}});
+test.updateMany({trainee_geo:null}, {$set:{trainee_geo: CryptoJS.AES.encrypt("", '3FJSei8zPx').toString()}});
+test.updateMany({trainee_clearance:null}, {$set:{trainee_clearance: CryptoJS.AES.encrypt("", '3FJSei8zPx').toString()}});
+//test.updateMany({trainee_businessEmail:null}, {$set:{trainee_businessEmail: CryptoJS.AES.encrypt("", '3FJSei8zPx').toString()}});
+// test.updateMany({trainee_aptitude_score:null}, {$set:{trainee_aptitude_score: CryptoJS.AES.encrypt("", '3FJSei8zPx').toString()}});
+// test.updateMany({trainee_languages:null}, {$set:{trainee_languages: CryptoJS.AES.encrypt("", '3FJSei8zPx').toString()}});
+// test.updateMany({:null}, {$set:{trainee_gender: CryptoJS.AES.encrypt("", '3FJSei8zPx').toString()}});

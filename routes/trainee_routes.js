@@ -548,8 +548,8 @@ traineeRoutes.route('/editDates/:id').post(function(req, res) {
 			
             trainee.save().then(trainee => {
                 res.json('Trainee updated!');
-                winston.info(moment().format('h:mm:ss a') +' - Changed By('+name+"): "+ 'Trainee: '+ email+ ' has had their starting/ending dates changed to: start('+req.body.trainee_start_date+'), end('+req.body.trainee_end_date+'), bench('+req.body.trainee_bench_start_date+'), benchEnd('+req.body.trainee_bench_end_date+')');
-                logger.info(moment().format('h:mm:ss a') +' - Changed By('+name+"): "+ 'Trainee: '+ fname + " "+ lname +' has had their starting/ending dates changed to: start('+req.body.trainee_start_date+'), end('+req.body.trainee_end_date+'), bench('+req.body.trainee_bench_start_date+'), benchEnd('+req.body.trainee_bench_end_date+')');
+                winston.info(moment().format('h:mm:ss a') +' - Changed By('+name+"): "+ 'Trainee: '+ email+ ' has had their starting/ending dates changed to: start('+moment(req.body.trainee_start_date).format('YYYY/MM/DD')+'), end('+moment(req.body.trainee_end_date).format('YYYY/MM/DD')+'), bench('+moment(req.body.trainee_bench_start_date).format('YYYY/MM/DD')+'), benchEnd('+moment(req.body.trainee_bench_end_date).format('YYYY/MM/DD')+')');
+                logger.info(moment().format('h:mm:ss a') +' - Changed By('+name+"): "+ 'Trainee: '+ fname + " "+ lname +' has had their starting/ending dates changed to: start('+moment(req.body.trainee_start_date).format('YYYY/MM/DD')+'), end('+moment(req.body.trainee_end_date).format('YYYY/MM/DD')+'), bench('+moment(req.body.trainee_bench_start_date).format('YYYY/MM/DD')+'), benchEnd('+moment(req.body.trainee_bench_end_date).format('YYYY/MM/DD')+')');
             })
             .catch(err => {
                 res.status(400).send("Update not possible");
