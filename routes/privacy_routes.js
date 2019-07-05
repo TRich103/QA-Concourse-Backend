@@ -27,8 +27,8 @@ privacyRoutes.get('/:id', function(req, res){
             else{
                 res.send('Failed');
             }
-            logger.verbose("checking if user "+ req.params.id +"has accepted our privacy policy "+moment().format('h:mm:ss a'));
-            winston.info("checking if user "+ req.params.id +"has accepted our privacy policy "+moment().format('h:mm:ss a'));
+            logger.verbose(moment().format('h:mm:ss a')+" checking if user "+ req.params.id +" has accepted our privacy policy ");
+            winston.info(+moment().format('h:mm:ss a')+" checking if user "+ req.params.id +" has accepted our privacy policy ");
         }
     }).catch( err => {
         res.status(205).send('An Error has occured');
@@ -42,7 +42,9 @@ privacyRoutes.get('/accept/:id', function(req, res){
             if(!trainee){
                 User.findById(req.params.id, function(err, user){
                     if(!user){
-                        winston.error("could not find user or trainee!" + +moment().format('h:mm:ss a'));
+
+                        winston.error(moment().format('h:mm:ss a')+" could not find user or trainee!");
+
                     }
                     else{
                         let email = CryptoJS.AES.decrypt(user.email
@@ -55,8 +57,10 @@ privacyRoutes.get('/accept/:id', function(req, res){
                         let newRecord = new PrivacyRecords({ permission: permission, user: logUser });
                         console.log(newRecord);
                         newRecord.save();
-                        logger.info('Privacy notice has been accepted ' + moment().format('h:mm:ss a'));
-                        winston.info('Privacy notice has been accepted ' + moment().format('h:mm:ss a'));
+
+                        logger.info(moment().format('h:mm:ss a') + ' Privacy notice has been accepted ');
+                        winston.info(moment().format('h:mm:ss a') + ' Privacy notice has been accepted ');
+
                         res.send('Success');
                     }
                 })
@@ -72,8 +76,8 @@ privacyRoutes.get('/accept/:id', function(req, res){
                 let newRecord = new PrivacyRecords({ permission: permission, user: user });
                 console.log(newRecord);
                 newRecord.save();
-                logger.info('Privacy notice has been accepted ' + moment().format('h:mm:ss a'));
-                winston.info('Privacy notice has been accepted ' + moment().format('h:mm:ss a'));
+                logger.info(moment().format('h:mm:ss a') + 'Privacy notice has been accepted ');
+                winston.info(moment().format('h:mm:ss a') + 'Privacy notice has been accepted ');
                 res.send('Success');
             }
         });

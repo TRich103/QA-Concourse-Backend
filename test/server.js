@@ -386,6 +386,51 @@ describe('trainee tests', () => {
 			}
 		});
 	});
+
+	describe('tech', () => {
+		context('testing tech function', function(){
+			it('test adding tech', (done) => {
+				chai.request('http://localhost:4000').post('/trainee/addTech').send({"techName": "Have Fun Testing"}).end((err, res) => {
+						console.log('Adding a new tech has passed');
+						done();
+				})
+			})
+	
+			it('test getting tech', (done) => {
+				chai.request('http://localhost:4000').get('/trainee/get/allTech/').end((err, res) => {
+					if(res.body[res.body.length - 1].value === 'Have Fun Testing'){
+						console.log('Added and got correctly');
+						done();
+					}
+					else{
+						console.log('Test has failed');
+					}
+				})
+			})
+		})
+	})
+
+	describe('intakes', () => {
+		context('testing intake function', function(){
+			it('test adding intake', (done) => {
+				chai.request('http://localhost:4000').post('/trainee/addIntake').send({"intakeName": "Testing Intake"}).end((err, res) => {
+					console.log('Adding a new tech has passed');
+					done();
+				})
+			})
+			it('test getting intake', (done) => {
+				chai.request('http://localhost:4000').get('/trainee/get/Intakes/').end((err, res) => {
+					if(res.body[res.body.length - 1].value === 'Testing Intake'){
+						console.log('Added and got correctly');
+						done();
+					}
+					else{
+						console.log('Test has failed');
+					}
+				})
+			})
+		})
+	})
 });
 
 describe('admin update password test', () => {

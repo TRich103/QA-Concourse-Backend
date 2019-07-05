@@ -37,20 +37,25 @@ adminRoutes.route('/', requireAuth, AuthenticationController.roleAuthorization([
                 currentStaff.status = CryptoJS.AES.decrypt(currentStaff.status, '3FJSei8zPx').toString(CryptoJS.enc.Utf8);
             });
             res.json(staff);
-			logger.verbose('All staff users were collected successfully '+moment().format('h:mm:ss a'));            
-			winston.info('All staff users were collected successfully '+moment().format('h:mm:ss a'));
+			logger.verbose(moment().format('h:mm:ss a')+' All staff users were collected successfully ');            
+			winston.info(moment().format('h:mm:ss a') +' All staff users were collected successfully ');
         }
     });
 });
 
 // Get logs 
 adminRoutes.route('/getServerLogs').get(function(req, res){
+    let logger = databaseLogger.createLogger("universal")
 	fs.readFile('./logs/server_logs.log', 'utf8', function(err,data) {
 		if(err){
-			res.send(err);
+            res.send(err);
+            winston.info(moment().format('h:mm:ss a')+' Unsuccessful at getting server logs ');
+            logger.verbose(moment().format('h:mm:ss a')+' Unsuccessful at getting server logs ');
 		}else{
 		let splitted = data.toString().split("\\r");
-			res.send(splitted);
+            res.send(splitted);
+            winston.info(moment().format('h:mm:ss a')+' Successfully got server logs ');
+            logger.verbose(moment().format('h:mm:ss a')+' Successfully got server logs ');
 		}
 		});
 	});
@@ -71,14 +76,14 @@ adminRoutes.route('/staff/:id').get(function(req, res) {
             staff.status = CryptoJS.AES.decrypt(staff.status, '3FJSei8zPx').toString(CryptoJS.enc.Utf8);
             res.json(staff);
             let logger = databaseLogger.createLogger(staff.email);
-            winston.info('Returned Staff details: ' + staff.email + " " + moment().format('h:mm:ss a'));
-            logger.verbose('Returned Staff details: ' + staff.email + " " + moment().format('h:mm:ss a'));
+            winston.info(moment().format('h:mm:ss a') + ' Returned Staff details: ' + staff.email);
+            logger.verbose(moment().format('h:mm:ss a') + ' Returned Staff details: ' + staff.email);
         }
     })
     .catch(err => {
         res.status(400).send("Staff doesn't exist");
 		console.log('staff doesnt exist');
-        winston.error('tried to get staff member but does not exist ' + err + " " + moment().format('h:mm:ss a'));
+        winston.error(moment().format('h:mm:ss a') + ' tried to get staff member but does not exist ' + err);
     });
 });
 //update single user
@@ -114,8 +119,8 @@ adminRoutes.route('/getByEmail').post(function(req,res) {
     User.findOne({email: staff_email}, function(err, user) {
         if(!user){
             res.status(205).send("User doesn't exist");
-            winston.error("User: "+ req.body.staff_email+ " doesn't exist " + moment().format('h:mm:ss a'));
-            logger.error("User: "+ req.body.staff_email+ " doesn't exist " + moment().format('h:mm:ss a'));
+            winston.error(moment().format('h:mm:ss a') + " User: "+ req.body.staff_email+ " doesn't exist ");
+            logger.error(moment().format('h:mm:ss a') + " User: "+ req.body.staff_email+ " doesn't exist ");
         }
         else{
             var bytes  = CryptoJS.AES.decrypt(user.email, CryptoJS.enc.Hex.parse("253D3FB468A0E24677C28A624BE0F939"), {iv: CryptoJS.enc.Hex.parse("00000000000000000000000000000000")});
@@ -127,8 +132,8 @@ adminRoutes.route('/getByEmail').post(function(req,res) {
             bytes = CryptoJS.AES.decrypt(user.status, '3FJSei8zPx');
             user.status = bytes.toString(CryptoJS.enc.Utf8);
             res.json(user);
-            winston.info("User: "+req.body.staff_email+" info returned "+moment().format('h:mm:ss a'));
-            logger.verbose("User: "+req.body.staff_email+" info returned "+moment().format('h:mm:ss a'));
+            winston.info(moment().format('h:mm:ss a') + " User: "+req.body.staff_email+" info returned ");
+            logger.verbose(moment().format('h:mm:ss a') +" User: "+req.body.staff_email+" info returned ");
         }
     })
     .catch(err => {
@@ -158,8 +163,8 @@ adminRoutes.route('/addUser', requireAuth).post(function(req,res){
       }
       else{
         const token = jwt.sign(user._id.toJSON(), secret.secret); //user need to be JSONed or causes an error
-        logger.info(user.role +' ' + req.body.email+ ' created. '+ moment().format('h:mm:ss a'));
-        winston.info(user.role +' ' + req.body.email+ ' created. ' + moment().format('h:mm:ss a'));
+        logger.info(moment().format('h:mm:ss a') + " "+ user.role +' ' + req.body.email+ ' created.');
+        winston.info(moment().format('h:mm:ss a') + " "+ user.role +' ' + req.body.email+ ' created. ');
 		console.log(' created '+ user.role + ' ' + req.body.email );
         return res.json({result: true, role: user.role, token});
       }
@@ -224,13 +229,13 @@ adminRoutes.route('/delete/:id').get(function(req, res) {
             user.status =  CryptoJS.AES.encrypt("Suspended", '3FJSei8zPx');
             user.save().then(user => {
                 res.json('User deleted');
-                logger.info('User: '+email+' has been suspended ' + moment().format('h:mm:ss a'));
-                winston.info('User: '+email+' has been suspended ' + moment().format('h:mm:ss a'));
+                logger.info(moment().format('h:mm:ss a') + 'User: '+email+' has been suspended ');
+                winston.info(moment().format('h:mm:ss a') + 'User: '+email+' has been suspended ');
             })
             .catch(err => {
                 res.status(400).send("Delete not possible");
-                logger.error('User:'+email+' could not be suspended. Error: ' + err + " " + moment().format('h:mm:ss a'))
-                winston.error('User:'+email+' could not be suspended. Error: ' + err + " " + moment().format('h:mm:ss a'))
+                logger.error(moment().format('h:mm:ss a') +' User:'+email+' could not be suspended. Error: ' + err)
+                winston.error(moment().format('h:mm:ss a') + ' User:'+email+' could not be suspended. Error: ' + err)
             });
         }
     });
@@ -250,12 +255,12 @@ adminRoutes.route('/reactivate/:id').get(function(req, res) {
             user.status =  CryptoJS.AES.encrypt("Active", '3FJSei8zPx');
             user.save().then(user => {
                 res.json('User reactivated');
-                logger.info('User: '+email+' has been reactivated '+moment().format('h:mm:ss a'))
-                winston.info('User: '+email+' has been reactivated '+moment().format('h:mm:ss a'))
+                logger.info(moment().format('h:mm:ss a')+' User: '+email+' has been reactivated ')
+                winston.info(moment().format('h:mm:ss a')+' User: '+email+' has been reactivated ')
             })
             .catch(err => {
                 res.status(400).send("Reactivation not possible");
-                 winston.error('User:'+email+' could not be reactivated. Error: ' + err + " "+moment().format('h:mm:ss a'))
+                 winston.error(moment().format('h:mm:ss a') + 'User:'+email+' could not be reactivated. Error: ' + err)
             });
         }
 
@@ -266,12 +271,11 @@ adminRoutes.route('/reactivate/:id').get(function(req, res) {
 adminRoutes.route('/reset-staff/:token').get(function(req, res) {
         User.findOne({password_token: req.params.token, password_expires: {$gt: Date.now()}}).then((staff) => {
           if (staff == null) {
-            console.error('password reset link is invalid or has expired');
-			winston.error('user password reset link is invalid or has expired '+moment().format('h:mm:ss a'));
+			winston.error(moment().format('h:mm:ss a') + ' user password reset link is invalid or has expired ');
             res.status(403).send('password reset link is invalid or has expired');
           } 
           else {
-			  winston.info('user password reset link recevied status 200 '+moment().format('h:mm:ss a'));
+			  winston.info(moment().format('h:mm:ss a') + ' user password reset link recevied status 200 ');
               res.status(200).send({
                 staff_id: staff._id,
                 message: 'password reset link a-ok',
@@ -285,7 +289,7 @@ adminRoutes.route('/removeToken/:token').get(function(req, res) {
         console.log(Date.now())
         if (!user) {
             console.error('No token found');
-            winston.error('No token found '+moment().format('h:mm:ss a'))
+            winston.error(moment().format('h:mm:ss a') + ' No token found ')
             res.status(403).send('No token found');
         } 
         else {
@@ -390,9 +394,8 @@ adminRoutes.route('/send-email-staff').post(function(req, res) {
 						winston.error(error + " " + moment().format('h:mm:ss a'));
                         return console.log(error);
                     }
-                    console.log('Message %s sent: %s', info.messageId, info.response);
-                    winston.info('Message %s sent: %s %s', info.messageId, info.response, moment().format('h:mm:ss a'));
-                    logger.verbose('Staff password reset email sent to: ' + req.body.email + " " + moment().format('h:mm:ss a'));
+                    winston.info('%s Message %s sent: %s', moment().format('h:mm:ss a'), info.messageId, info.response);
+                    logger.verbose(moment().format('h:mm:ss a') + ' Staff password reset email sent to: ' + req.body.email);
                     res.status(200).json({'email': 'Email Sent'});
                 });
             }
@@ -431,8 +434,7 @@ adminRoutes.route('/update-password-staff/:token').post(function(req, res) {
                   });
             }      
         });
-    });  
-    
+    });   
     adminRoutes.route('/getRecord/:id').get(function(req, res){
         User.findById(req.params.id, function(err, user){
             let logger = databaseLogger.createLogger('universal')
@@ -493,6 +495,8 @@ adminRoutes.route('/expenses/:id').post(function (req, res) {
                 , { iv: CryptoJS.enc.Hex.parse("00000000000000000000000000000000") })
                 .toString(CryptoJS.enc.Utf8);
                 let logger = databaseLogger.createLogger(email);
+                let fname = CryptoJS.AES.decrypt(trainee.trainee_fname, '3FJSei8zPx').toString(CryptoJS.enc.Utf8);
+                let lname = CryptoJS.AES.decrypt(trainee.trainee_lname, '3FJSei8zPx').toString(CryptoJS.enc.Utf8);
 
             console.log(trainee);
             
@@ -507,13 +511,14 @@ adminRoutes.route('/expenses/:id').post(function (req, res) {
 
             trainee.save().then(trainee => {
                 res.json('Trainee updated!');
-                winston.info('Trainee: ' + email + ' has requested expenses for '+req.body.expenseType + " for the amount of "+req.body.amount + " added by "+name+" "+moment().format('h:mm:ss a'));
-                logger.info('Trainee: ' + email +' has requested expenses for '+req.body.expenseType + " for the amount of "+req.body.amount + " added by "+name+" "+moment().format('h:mm:ss a'));
+                winston.info(moment().format('h:mm:ss a') + ' - Changed By('+name+"): "+ ' has added expenses for '+ fname +" for "+req.body.expenseType + " for the amount of "+req.body.amount);
+                logger.info(moment().format('h:mm:ss a') + ' - Changed By('+name+"): "+' has added expenses for '+ fname +" for "+req.body.expenseType + " for the amount of "+req.body.amount);
+                //logger.info(moment().format('h:mm:ss a') +' Trainee: ' + fname+ " "+ lname +' has requested expenses for '+req.body.expenseType + " for the amount of "+req.body.amount + " added by "+name);
             })
                 .catch(err => {
                     res.status(400).send("Update not possible");
-                    winston.error('Trainee: ' + email + ' tried to request expense but got an error: ' + err + " " + moment().format('h:mm:ss a'))
-                    logger.error('Trainee: ' + email + ' tried to request expense but got an error: ' + err + " " + moment().format('h:mm:ss a'))
+                    winston.error(moment().format('h:mm:ss a') + ' - Changed By('+name+"): "+ email + ' tried to request expense but got an error: ' + err)
+                    logger.error(moment().format('h:mm:ss a')+ ' - Changed By('+name+"): "+ ' tried to request expense but got an error: ' + err)
                 });
         }
     });
@@ -539,8 +544,8 @@ adminRoutes.route('/getexp/:id').get(function(req,res){
                 );
             trainee.monthly_expenses.map(expense => {
              //need to add loggin 
-             winston.verbose('Trainee '+ email + ' expenses have been gotten '+ moment().format('h:mm:ss a'));
-             logger.verbose('Trainee '+ email + ' expenses have been gotten ' + moment().format('h:mm:ss a'));
+             winston.verbose(moment().format('h:mm:ss a') +' Trainee '+ email + ' expenses have been gotten ');
+             logger.verbose( moment().format('h:mm:ss a') +' Trainee '+ email + ' expenses have been gotten ');
              expense.expenseType = CryptoJS.AES.decrypt(expense.expenseType,'3FJSei8zPx').toString(CryptoJS.enc.Utf8);
              expense.amount = CryptoJS.AES.decrypt(expense.amount,'3FJSei8zPx').toString(CryptoJS.enc.Utf8);
             } )
@@ -554,15 +559,39 @@ adminRoutes.route('/getexp/:id').get(function(req,res){
 
 //gets trainee by id and removes expense
 adminRoutes.route('/removeExpenses/:id').post(function (req, res) {
-    function arrayRemove(arr, json) {
+    let name;
+    User.findById(req.body.addedBy, function (err, user) {
+        name = CryptoJS.AES.decrypt(user.fname, 'c9nMaacr2Y').toString(CryptoJS.enc.Utf8) + " "+CryptoJS.AES.decrypt(user.lname, 'c9nMaacr2Y').toString(CryptoJS.enc.Utf8);
+    })
+
+    function arrayRemove(arr, json, location) {
+        console.log('here it is: ' + location);
+        let count = 0;
         let result = arr.filter(function(ele){
-                console.log(ele)
-                console.log(json)
-                console.log(ele.amount !== json.amount);
                 if(ele.amount !== json.amount && ele.expenseType !== json.expenseType){
+                    console.log(ele);
                     ele.amount = CryptoJS.AES.encrypt(ele.amount, '3FJSei8zPx').toString();
-                    ele.expenseType = CryptoJS.AES.encrypt(ele.expenseType, '3FJSei8zPx').toString()
+                    ele.expenseType = CryptoJS.AES.encrypt(ele.expenseType, '3FJSei8zPx').toString();
+                    count++;
                     return ele;
+                } else if(ele.amount !== json.amount || ele.expenseType !== json.expenseType){
+                    console.log(ele);
+                    ele.amount = CryptoJS.AES.encrypt(ele.amount, '3FJSei8zPx').toString();
+                    ele.expenseType = CryptoJS.AES.encrypt(ele.expenseType, '3FJSei8zPx').toString();
+                    count++;
+                    return ele;
+                }else{
+                    console.log('count where found is: '+count);
+                    console.log(ele);
+                    if(count === location){
+
+                    }
+                    else{
+                        ele.amount = CryptoJS.AES.encrypt(ele.amount, '3FJSei8zPx').toString();
+                        ele.expenseType = CryptoJS.AES.encrypt(ele.expenseType, '3FJSei8zPx').toString();
+                        count++;
+                        return ele;
+                    }
                 }
         });
         return result;
@@ -590,22 +619,72 @@ adminRoutes.route('/removeExpenses/:id').post(function (req, res) {
                 } )
            
             let data = trainee.monthly_expenses;
-            data = arrayRemove(data, req.body);
+            console.log('When sent, it is: '+req.body.location);
+            data = arrayRemove(data, {"expenseType": req.body.expenseType, "amount": req.body.amount}, req.body.location);
             trainee.monthly_expenses = data;
 
             trainee.save().then(trainee => {
                 res.json('Trainee updated!');
-                winston.info('Trainee: ' + email + ' expense has been deleted');
-                logger.info('Trainee: ' + email + ' expense has been deleted');
+                winston.info(moment().format('h:mm:ss a') +' - Changed By('+name+"): "+ ' removed trainee :'+ email + ' expense ' + req.body.expenseType + ":"+ req.body.amount);
+                //winston.info(moment().format('h:mm:ss a') + ' Trainee: ' + email + ' expense has been deleted');
+                logger.info(moment().format('h:mm:ss a') + ' - Changed By('+name+"): "+' removed trainee: ' + email + ' expense '+req.body.expenseType + ":"+ req.body.amount);
             })
                 .catch(err => {
                     res.status(400).send("Update not possible");
-                    winston.error('Trainee: ' + email + ' tried to delete expense but got an error: ' + err)
-                    logger.error('Trainee: ' + email + ' tried to delete expense but got an error: ' + err)
+                    winston.error(moment().format('h:mm:ss a') + ' - Changed By('+name+"): "+' failed to remove trainee: ' + email + ' expense '+req.body.expenseType +":"+req.body.amount + "but got :"+ err)
+                    logger.error(moment().format('h:mm:ss a') + ' - Changed By('+name+"): "+' failed to remove trainee: ' + email + ' expense '+req.body.expenseType +":"+req.body.amount + "but got :"+ err)
                 });
         }
     });
 });
+
+        //updates user password      
+        adminRoutes.route('/update-mypassword-staff/:id').post(function(req, res) {
+            //encrypt before updating
+            User.findById(req.params.id, function(err, staff) {
+                if (!staff)
+                    res.status(404).send("data is not found");
+                else{
+                    let email = CryptoJS.AES.decrypt(staff.email
+                        , CryptoJS.enc.Hex.parse("253D3FB468A0E24677C28A624BE0F939")
+                        , {iv: CryptoJS.enc.Hex.parse("00000000000000000000000000000000")})
+                        .toString(CryptoJS.enc.Utf8)
+                    let logger = databaseLogger.createLogger(email);
+        
+                     User.comparePassword(req.body.previous, staff.password, function(err, isMatch){
+                        if(err){
+                              console.log(err);
+                              winston.error(err);
+                              logger.error('Unable to login, Error: ' + err);
+                              res.send('Something went wrong!');
+                          }
+                           else if(!isMatch){
+                              console.log('user: ' + staff._id + ' entered wrong password');
+                              winston.error('user: ' + staff._id + ' entered wrong password');
+                              res.send('Old password did not match!');
+                          }
+                          else {
+                            bcrypt.genSalt(10, function(err, salt) {
+                                bcrypt.hash(req.body.password, salt, function(err, hash) {
+                                    req.body.password = hash;
+                                    staff.password = req.body.password;
+                                    staff.save().then(staff => {
+                                    winston.info(moment().format('h:mm:ss a')+' User: '+email+' has updated thier password ')
+                                    logger.info(moment().format('h:mm:ss a')+ 'User: '+email+' has updated thier password ')
+                                    res.json('Password updated!');
+                                })
+                                .catch(err => {
+                                    winston.error(moment().format('h:mm:ss a') +' User: '+email+' could not update thier password. Error: ' + err);
+                                    logger.error(moment().format('h:mm:ss a')+' User: '+email+' could not update thier password. Error: ' + err);
+                                    res.status(400).send("Update not possible");
+                                });
+                                });
+                              });
+                          }
+                   })
+                }      
+            });
+        });
 
 
 module.exports = adminRoutes;
