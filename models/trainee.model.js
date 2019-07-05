@@ -91,8 +91,7 @@ let Trainee = new Schema({
         type: String,
     },
     trainee_phone: {
-        type: String,
-        required: true
+        type: String
     },
     trainee_degree: {
         type: String,
@@ -101,8 +100,7 @@ let Trainee = new Schema({
         type: String,
     },
     trainee_intake: {
-        type: String,
-        required: true
+        type: String
     },
     trainee_geo: {
         type: String,
@@ -158,52 +156,62 @@ module.exports.comparePassword = function(traineePassword, hash, callback){
     });
   }
 
-//   trainee_gender: {
-//     trainee_uniName: {
-//     trainee_phone: {
- 
-//     trainee_degree: {
-//     trainee_chosenTech: {
-//     trainee_intake:
-//     trainee_geo:
-//     trainee_clearance:
-//     trainee_businessEmail:
-//     trainee_aptitude_score:
-//     trainee_languages
-//     documents_signed
-//     sent_Agreement
-//     received_Agreement
-//     accomodation:
-//     java_test_Score
-//     MTE :
-//     date_Achieved
-
 test.find({}, function(err, docs){
     if(!err){
         docs.map(doc => {
-            if(doc.trainee_gender === null){
+            if(doc.trainee_gender === undefined){
                 doc.trainee_gender = CryptoJS.AES.encrypt("", '3FJSei8zPx').toString();
             }
-            if(doc.trainee_uniName === null){
+            if(doc.trainee_uniName === undefined){
                 doc.trainee_uniName = CryptoJS.AES.encrypt("", '3FJSei8zPx').toString();
             }
-            if(doc.trainee_phone === null){
+            if(doc.trainee_phone === undefined){
                 doc.trainee_phone = CryptoJS.AES.encrypt("", '3FJSei8zPx').toString();
             }
-            if(doc.trainee_degree === null){
+            if(doc.trainee_degree === undefined){
                 doc.trainee_degree = CryptoJS.AES.encrypt("", '3FJSei8zPx').toString();
             }
-            if(doc.trainee_chosenTech === null){
+            if(doc.trainee_chosenTech === undefined){
                 doc.trainee_chosenTech = CryptoJS.AES.encrypt("", '3FJSei8zPx').toString();
             }
-            if(doc.trainee_intake === null){
+            if(doc.trainee_intake === undefined){
                 doc.trainee_intake = CryptoJS.AES.encrypt("", '3FJSei8zPx').toString();
             }
-            if(doc.trainee_geo === null){
+            if(doc.trainee_geo === undefined){
                 doc.trainee_geo = CryptoJS.AES.encrypt("", '3FJSei8zPx').toString();
             }
-            if(doc.trainee_clearance === null){
+            if(doc.trainee_clearance === undefined){
                 doc.trainee_clearance = CryptoJS.AES.encrypt("", '3FJSei8zPx').toString();
+            }
+            if(doc.trainee_businessEmail === undefined){
+                doc.trainee_businessEmail = CryptoJS.AES.encrypt("", '3FJSei8zPx').toString();
+            }
+            if(doc.trainee_aptitude_score === undefined){
+                doc.trainee_aptitude_score = CryptoJS.AES.encrypt("", '3FJSei8zPx').toString();
+            }
+            if(doc.trainee_languages === undefined){
+                doc.trainee_languages = CryptoJS.AES.encrypt("", '3FJSei8zPx').toString();
+            }
+            if(doc.documents_signed === undefined){
+                doc.documents_signed = CryptoJS.AES.encrypt("", '3FJSei8zPx').toString();
+            }
+            if(doc.sent_Agreement === undefined){
+                doc.sent_Agreement = CryptoJS.AES.encrypt("", '3FJSei8zPx').toString();
+            }
+            if(doc.received_Agreement === undefined){
+                doc.received_Agreement = CryptoJS.AES.encrypt("", '3FJSei8zPx').toString();
+            }
+            if(doc.accomodation === undefined){
+                doc.accomodation = CryptoJS.AES.encrypt("", '3FJSei8zPx').toString();
+            }
+            if(doc.java_test_Score === undefined){
+                doc.java_test_Score = CryptoJS.AES.encrypt("", '3FJSei8zPx').toString();
+            }
+            if(doc.MTE === undefined){
+                doc.MTE = CryptoJS.AES.encrypt("", '3FJSei8zPx').toString();
+            }
+            if(doc.date_Achieved === undefined){
+                doc.date_Achieved = CryptoJS.AES.encrypt("", '3FJSei8zPx').toString();
             }
             doc.save();
         })
@@ -212,15 +220,3 @@ test.find({}, function(err, docs){
         throw err;
     }
 })
-// test.updateMany({trainee_gender:null}, {$set:{trainee_gender: CryptoJS.AES.encrypt("", '3FJSei8zPx').toString()}});
-// test.updateMany({trainee_uniName:null}, {$set:{trainee_uniName: CryptoJS.AES.encrypt("", '3FJSei8zPx').toString()}});
-// test.updateMany({trainee_phone:null}, {$set:{trainee_phone: CryptoJS.AES.encrypt("", '3FJSei8zPx').toString()}});
-// test.updateMany({trainee_degree:null}, {$set:{trainee_degree: CryptoJS.AES.encrypt("", '3FJSei8zPx').toString()}});
-// test.updateMany({trainee_chosenTech:null}, {$set:{trainee_chosenTech: CryptoJS.AES.encrypt("", '3FJSei8zPx').toString()}});
-// test.updateMany({trainee_intake:null}, {$set:{trainee_intake: CryptoJS.AES.encrypt("", '3FJSei8zPx').toString()}});
-// test.updateMany({trainee_geo:null}, {$set:{trainee_geo: CryptoJS.AES.encrypt("", '3FJSei8zPx').toString()}});
-// test.updateMany({trainee_clearance:null}, {$set:{trainee_clearance: CryptoJS.AES.encrypt("", '3FJSei8zPx').toString()}});
-//test.updateMany({trainee_businessEmail:null}, {$set:{trainee_businessEmail: CryptoJS.AES.encrypt("", '3FJSei8zPx').toString()}});
-// test.updateMany({trainee_aptitude_score:null}, {$set:{trainee_aptitude_score: CryptoJS.AES.encrypt("", '3FJSei8zPx').toString()}});
-// test.updateMany({trainee_languages:null}, {$set:{trainee_languages: CryptoJS.AES.encrypt("", '3FJSei8zPx').toString()}});
-// test.updateMany({:null}, {$set:{trainee_gender: CryptoJS.AES.encrypt("", '3FJSei8zPx').toString()}});
