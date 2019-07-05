@@ -339,11 +339,10 @@ describe('trainee tests', () => {
 				console.log('test failed for unknown reasons');
 			}
 		});
-	});
 });
 
 	it('test getting privacy policy', (done) => {
-		chai.request('http://localhost:4000').get('/privacy/5d0b629524eb545e4863b83e').end((err, res) =>{
+		chai.request('http://localhost:4000').get('/privacy/5d19f25a8d94873e7c9e6fcf').end((err, res) =>{
 			if (res.status == '200'){
 				console.log('Has returned if the result is true or false');
 				done();
@@ -358,7 +357,7 @@ describe('trainee tests', () => {
 	});
   
   it('test accepting policy', (done) => {
-		chai.request('http://localhost:4000').get('/privacy/accept/5d0b629524eb545e4863b83e').end((err, res) =>{
+		chai.request('http://localhost:4000').get('/privacy/accept/5d19f25a8d94873e7c9e6fcf').end((err, res) =>{
 			if (res.status == '200'){
 				console.log('Has accepted now');
 				done();
@@ -373,7 +372,7 @@ describe('trainee tests', () => {
 	});
   
 	it('test changePassword', (done) => {
-		chai.request('http://localhost:4000').post('/trainee/update-my-password/5d0b629524eb545e4863b83e').send({'trainee_password': 'pass', 'previous': 'password'}).end((err, res) =>{
+		chai.request('http://localhost:4000').post('/trainee/update-my-password/5d19f25a8d94873e7c9e6fcf').send({'trainee_password': 'pass', 'previous': 'password'}).end((err, res) =>{
 			if (res.status == '200'){
 				console.log('HERE IS UPDATING PASWORD!!!!')
 				console.log(res.body);
@@ -391,7 +390,7 @@ describe('trainee tests', () => {
 
 describe('admin update password test', () => {
 	it('test updatePassword', (done) => {
-		chai.request('http://localhost:4000').post('/admin/update-mypassword-staff/5d0b52d4f2671a43f4e3eb79').send({'password':'adamadam', 'previous':'adam'}).end((err, res) => {
+		chai.request('http://localhost:4000').post('/admin/update-mypassword-staff/5d19ed748d94873e7c9e6fbf').send({'password':'adamadam', 'previous':'adam'}).end((err, res) => {
 			if(res.status == '200'){
 				done();
 			}
@@ -401,3 +400,4 @@ describe('admin update password test', () => {
 		})
 	})
 })
+

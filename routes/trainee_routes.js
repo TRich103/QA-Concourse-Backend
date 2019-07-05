@@ -813,6 +813,8 @@ traineeRoutes.route('/monthlyReport').post(function(req, res) {
                         report.month = req.body.month;
                         report.reportTrainees = reportTrainees;
                         report.status = CryptoJS.AES.encrypt("PendingApproval", '3FJSei8zPx').toString();
+						report.approvedBy = CryptoJS.AES.encrypt(" ", '3FJSei8zPx').toString();
+						report.financeApprove = CryptoJS.AES.encrypt(" ", '3FJSei8zPx').toString();
                         report.save().then(report =>{
                             res.json('Success');
                         });
@@ -851,6 +853,8 @@ traineeRoutes.route('/getMonthlyReport').post(function(req, res) {
             // report.totalDailyPayments = CryptoJS.AES.decrypt(report.totalDailyPayments, '3FJSei8zPx').toString(CryptoJS.enc.Utf8);
             // report.totalAmount = CryptoJS.AES.decrypt(report.totalAmount, '3FJSei8zPx').toString(CryptoJS.enc.Utf8);
             report.status = CryptoJS.AES.decrypt(report.status, '3FJSei8zPx').toString(CryptoJS.enc.Utf8);
+			report.financeApprove = CryptoJS.AES.decrypt(report.financeApprove, '3FJSei8zPx').toString(CryptoJS.enc.Utf8);
+			report.approvedBy = CryptoJS.AES.decrypt(report.approvedBy, '3FJSei8zPx').toString(CryptoJS.enc.Utf8);
             report.reportTrainees.map(trainee =>{
                 var bytes  = CryptoJS.AES.decrypt(trainee.trainee_email, CryptoJS.enc.Hex.parse("253D3FB468A0E24677C28A624BE0F939"), {iv: CryptoJS.enc.Hex.parse("00000000000000000000000000000000")});
                 trainee.trainee_email = bytes.toString(CryptoJS.enc.Utf8);
@@ -904,6 +908,7 @@ traineeRoutes.route('/monthlyReport/updateStatus').post(function(req, res) {
         }
         else{
             if(req.body.user_role === "admin"){
+				report.approvedBy = CryptoJS.AES.encrypt(req.body.approvedBy,'3FJSei8zPx' ).toString();
                 report.status = CryptoJS.AES.encrypt('AdminApproved', '3FJSei8zPx').toString();
                 report.save().then(report => {
                     res.json('Sucessfully updated ');
@@ -911,6 +916,15 @@ traineeRoutes.route('/monthlyReport/updateStatus').post(function(req, res) {
             }
             else if(req.body.user_role === "finance"){
                 report.status = CryptoJS.AES.encrypt('FinanceApproved', '3FJSei8zPx').toString();
+				report.financeApprove = CryptoJS.AES.encrypt(req.body.financeApprove,'3FJSei8zPx' ).toString();
+                report.save().then(report => {
+                    res.json('Sucessfully updated ');
+                })
+            }
+			else if(req.body.user_role === "pending"){
+				report.approvedBy = CryptoJS.AES.encrypt(req.body.approvedBy,'3FJSei8zPx' ).toString();
+				report.financeApprove = CryptoJS.AES.encrypt(req.body.financeApprove,'3FJSei8zPx' ).toString();
+                report.status = CryptoJS.AES.encrypt('PendingApproval', '3FJSei8zPx').toString();
                 report.save().then(report => {
                     res.json('Sucessfully updated ');
                 })
