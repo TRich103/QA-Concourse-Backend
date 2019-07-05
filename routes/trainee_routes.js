@@ -78,7 +78,7 @@ traineeRoutes.route('/', requireAuth, AuthenticationController.roleAuthorization
                     expense.expenseType = CryptoJS.AES.decrypt(expense.expenseType,'3FJSei8zPx').toString(CryptoJS.enc.Utf8);
                     expense.amount = CryptoJS.AES.decrypt(expense.amount,'3FJSei8zPx').toString(CryptoJS.enc.Utf8);
                    } )
-                if(currentTrainee.status === 'Active'){
+                if(currentTrainee.status === 'Active' && currentTrainee.bursary === "True"){
                     bytes = CryptoJS.AES.decrypt(currentTrainee.trainee_bank_name, '3FJSei8zPx');
                     currentTrainee.trainee_bank_name = bytes.toString(CryptoJS.enc.Utf8);
                     bytes = CryptoJS.AES.decrypt(currentTrainee.trainee_account_no, '3FJSei8zPx');
@@ -140,7 +140,7 @@ traineeRoutes.route('/:id').get(function(req, res) {
             trainee.trainee_intake = CryptoJS.AES.decrypt(trainee.trainee_intake, '3FJSei8zPx').toString(CryptoJS.enc.Utf8);
             trainee.trainee_geo = CryptoJS.AES.decrypt(trainee.trainee_geo, '3FJSei8zPx').toString(CryptoJS.enc.Utf8);
             trainee.trainee_clearance = CryptoJS.AES.decrypt(trainee.trainee_clearance, '3FJSei8zPx').toString(CryptoJS.enc.Utf8);
-            if(trainee.status === 'Active'){
+            if(trainee.status === 'Active' && trainee.bursary === "True"){
                 bytes = CryptoJS.AES.decrypt(trainee.trainee_bank_name, '3FJSei8zPx');
                 trainee.trainee_bank_name = bytes.toString(CryptoJS.enc.Utf8);
                 bytes = CryptoJS.AES.decrypt(trainee.trainee_account_no, '3FJSei8zPx');
@@ -508,6 +508,16 @@ traineeRoutes.route('/update/:id').post(function(req, res) {
             trainee.trainee_bank_name = CryptoJS.AES.encrypt(req.body.trainee_bank_name, '3FJSei8zPx').toString();
             trainee.trainee_account_no = CryptoJS.AES.encrypt(req.body.trainee_account_no, '3FJSei8zPx').toString();
             trainee.trainee_sort_code = CryptoJS.AES.encrypt(req.body.trainee_sort_code, '3FJSei8zPx').toString();
+			
+			//update new fields
+			trainee.trainee_gender = CryptoJS.AES.decrypt(req.body.trainee_gender, '3FJSei8zPx').toString(CryptoJS.enc.Utf8);
+            trainee.trainee_uniName = CryptoJS.AES.decrypt(req.body.trainee_uniName, '3FJSei8zPx').toString(CryptoJS.enc.Utf8);
+            trainee.trainee_phone = CryptoJS.AES.decrypt(req.body.trainee_phone, '3FJSei8zPx').toString(CryptoJS.enc.Utf8);
+            trainee.trainee_degree = CryptoJS.AES.decrypt(req.body.trainee_degree, '3FJSei8zPx').toString(CryptoJS.enc.Utf8);
+            trainee.trainee_chosenTech = CryptoJS.AES.decrypt(req.body.trainee_chosenTech, '3FJSei8zPx').toString(CryptoJS.enc.Utf8);
+            trainee.trainee_intake = CryptoJS.AES.decrypt(req.body.trainee_intake, '3FJSei8zPx').toString(CryptoJS.enc.Utf8);
+            trainee.trainee_geo = CryptoJS.AES.decrypt(req.body.trainee_geo, '3FJSei8zPx').toString(CryptoJS.enc.Utf8);
+            trainee.trainee_clearance = CryptoJS.AES.decrypt(req.body.trainee_clearance, '3FJSei8zPx').toString(CryptoJS.enc.Utf8);
 
             trainee.save().then(trainee => {
                 res.json('Trainee updated!');
@@ -694,9 +704,12 @@ traineeRoutes.route('/update-password/:token').post(function(req, res) {
                 .toString(CryptoJS.enc.Utf8)
             let logger = databaseLogger.createLogger(email);
             //update status if Pending
-            if(CryptoJS.AES.decrypt(trainee.status, '3FJSei8zPx').toString(CryptoJS.enc.Utf8) === 'Pending'){
+            if(CryptoJS.AES.decrypt(trainee.status, '3FJSei8zPx').toString(CryptoJS.enc.Utf8) === 'Pending' &&
+			CryptoJS.AES.decrypt(trainee.bursary, '3FJSei8zPx').toString(CryptoJS.enc.Utf8) === "True"){
                 trainee.status = CryptoJS.AES.encrypt('Incomplete', '3FJSei8zPx').toString();
-            } 
+            }else{
+				trainee.status = CryptoJS.AES.encrypt('Active', '3FJSei8zPx').toString();
+			}
             //bcrypt pass
             bcrypt.genSalt(10, function(err, salt) {
                 bcrypt.hash(req.body.trainee_password, salt, function(err, hash) {
