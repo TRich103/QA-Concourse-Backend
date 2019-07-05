@@ -46,12 +46,12 @@ let profilePic = {
     'imageData':'../Pizza.jpg'
 }
 
-describe('/uploadmulter', () => {
+describe('uploadmulter/', () => {
 	it('Should get a status of 200', (done) => {
-		chai.request("http://localhost:4000").post('/user-profile/uploadmulter').set('Content-Type', 'image/jpeg').set('Accept', 'image/jpeg').attach( "Pizza.jpg", "uploads/Pizza.jpg").end((err, res) => {
+		chai.request("http://localhost:4000").post('/profile').set('Content-Type', 'image/jpeg').set('Accept', 'image/jpeg').attach( "Pizza", "./Pizza.jpg").end((err, res) => {
 			if (err) {
-                console.log(err);
-            } else expect(res.status).to.equal(200);
+                console.debug(err);
+            } else expect(res.status).to.equal(200); 
             done();
 		});
 	});

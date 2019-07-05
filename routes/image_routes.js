@@ -12,8 +12,8 @@ and the filename for the file uploaded is defined
 */
 const storage =multer.diskStorage({
     destination: function(req, file, cb){
-        //cb(null, './uploads/');
-        cb(null, 'C:/Users/spiro/QABursaryProject/QA-Concourse-Backend/uploads');
+        cb(null, './uploads/');
+        //cb(null, 'C:/Users/spiro/QABursaryProject/QA-Concourse-Backend/uploads');
     },
     filename: function(req, file, cb){
         cb(null, Date.now() + file.originalname);
