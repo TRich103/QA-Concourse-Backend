@@ -65,6 +65,7 @@ traineeRoutes.route('/', requireAuth, AuthenticationController.roleAuthorization
                     //console.log(expense);
                     expense.expenseType = CryptoJS.AES.decrypt(expense.expenseType,'3FJSei8zPx').toString(CryptoJS.enc.Utf8);
                     expense.amount = CryptoJS.AES.decrypt(expense.amount,'3FJSei8zPx').toString(CryptoJS.enc.Utf8);
+					expense.status = CryptoJS.AES.decrypt(expense.status,'3FJSei8zPx').toString(CryptoJS.enc.Utf8);
                    } )
                 if(currentTrainee.status === 'Active'){
                     bytes = CryptoJS.AES.decrypt(currentTrainee.trainee_bank_name, '3FJSei8zPx');
@@ -884,6 +885,7 @@ traineeRoutes.route('/getMonthlyReport').post(function(req, res) {
                     //console.log(expense);
                     expense.expenseType = CryptoJS.AES.decrypt(expense.expenseType,'3FJSei8zPx').toString(CryptoJS.enc.Utf8);
                     expense.amount = CryptoJS.AES.decrypt(expense.amount,'3FJSei8zPx').toString(CryptoJS.enc.Utf8);
+					expense.status = CryptoJS.AES.decrypt(expense.status,'3FJSei8zPx').toString(CryptoJS.enc.Utf8);
                    } )
                 if(trainee.status === 'Active'){
                     bytes = CryptoJS.AES.decrypt(trainee.trainee_bank_name, '3FJSei8zPx');
@@ -917,6 +919,13 @@ traineeRoutes.route('/monthlyReport/updateStatus').post(function(req, res) {
             else if(req.body.user_role === "finance"){
                 report.status = CryptoJS.AES.encrypt('FinanceApproved', '3FJSei8zPx').toString();
 				report.financeApprove = CryptoJS.AES.encrypt(req.body.financeApprove,'3FJSei8zPx' ).toString();
+				//May need to delete
+				report.reportTrainees.map(report =>{
+					report.monthly_expenses.map(report => {
+						report.status = CryptoJS.AES.encrypt('Approved', '3FJSei8zPx').toString();
+						console.log("expense status is", CryptoJS.AES.decrypt(report.status,'3FJSei8zPx').toString(CryptoJS.enc.Utf8));
+					})
+				})
                 report.save().then(report => {
                     res.json('Sucessfully updated ');
                 })
