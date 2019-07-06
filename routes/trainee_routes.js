@@ -397,7 +397,7 @@ traineeRoutes.route('/add').post(function(req, res) {
     req.body.trainee_phone = CryptoJS.AES.encrypt(req.body.trainee_phone, '3FJSei8zPx').toString();
     req.body.trainee_degree = CryptoJS.AES.encrypt(req.body.trainee_degree, '3FJSei8zPx').toString();
     req.body.trainee_chosenTech = CryptoJS.AES.encrypt(req.body.trainee_chosenTech, '3FJSei8zPx').toString();
-    req.body.trainee_intake = CryptoJS.AES.encrypt(req.body.intake, '3FJSei8zPx').toString();
+    req.body.trainee_intake = CryptoJS.AES.encrypt(req.body.trainee_intake, '3FJSei8zPx').toString();
     req.body.trainee_geo = CryptoJS.AES.encrypt(req.body.trainee_geo, '3FJSei8zPx').toString();
     req.body.trainee_clearance = CryptoJS.AES.encrypt(req.body.trainee_clearance, '3FJSei8zPx').toString();
     req.body.trainee_start_date = CryptoJS.AES.encrypt(req.body.trainee_start_date, '3FJSei8zPx').toString();
