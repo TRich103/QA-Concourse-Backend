@@ -16,7 +16,7 @@ const storage =multer.diskStorage({
         //cb(null, 'C:/Users/spiro/QABursaryProject/QA-Concourse-Backend/uploads');
     },
     filename: function(req, file, cb){
-        cb(null, Date.now() + file.originalname);
+        cb(null, file.originalname + Date.now() + fileObj[file.mimetype]);
     }
 });
 

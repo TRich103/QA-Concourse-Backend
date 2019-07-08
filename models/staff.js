@@ -21,6 +21,10 @@ const UserSchema = new mongoose.Schema({
     type: String,
     required: true
   },
+  multerImage: {
+    type: String,
+    required: true
+  },
   role: { 
   type: String, 
   enum:['recruiter','admin','finance'],
