@@ -503,7 +503,7 @@ adminRoutes.route('/expenses/:id').post(function (req, res) {
             data.push({
 				"expenseType":CryptoJS.AES.encrypt(req.body.expenseType, '3FJSei8zPx').toString(),
 				"amount":CryptoJS.AES.encrypt(req.body.amount, '3FJSei8zPx').toString(),
-				"status":CryptoJS.AES.encrypt(req.body.status, '3FJSei8zPx').toString()
+				"status":CryptoJS.AES.encrypt('pending', '3FJSei8zPx').toString()
 				})
             console.log("DATA")
             console.log(data)
@@ -557,7 +557,7 @@ adminRoutes.route('/getexp/:id').get(function(req,res){
     });
 });
 
-
+//Plan B on update Expenses
 adminRoutes.route('/updateExpenses/:id').post(function(req, res){
 	Trainee.findById(req.params.id, function (err, trainee) {
         if (!trainee) {
