@@ -62,7 +62,6 @@ traineeRoutes.route('/', requireAuth, AuthenticationController.roleAuthorization
                 bytes = CryptoJS.AES.decrypt(currentTrainee.trainee_days_worked, '3FJSei8zPx');
                 currentTrainee.trainee_days_worked = bytes.toString(CryptoJS.enc.Utf8);
                 currentTrainee.monthly_expenses.map(expense => {
-                    //console.log(expense);
                     expense.expenseType = CryptoJS.AES.decrypt(expense.expenseType,'3FJSei8zPx').toString(CryptoJS.enc.Utf8);
                     expense.amount = CryptoJS.AES.decrypt(expense.amount,'3FJSei8zPx').toString(CryptoJS.enc.Utf8);
 					expense.status = CryptoJS.AES.decrypt(expense.status,'3FJSei8zPx').toString(CryptoJS.enc.Utf8);
@@ -850,12 +849,9 @@ traineeRoutes.route('/getMonthlyReport').post(function(req, res) {
             // returns report is not ready yet
             res.json('no report');
         } else{
-            // report.totalDays = CryptoJS.AES.decrypt(report.totalDays, '3FJSei8zPx').toString(CryptoJS.enc.Utf8);
-            // report.totalDailyPayments = CryptoJS.AES.decrypt(report.totalDailyPayments, '3FJSei8zPx').toString(CryptoJS.enc.Utf8);
-            // report.totalAmount = CryptoJS.AES.decrypt(report.totalAmount, '3FJSei8zPx').toString(CryptoJS.enc.Utf8);
             report.status = CryptoJS.AES.decrypt(report.status, '3FJSei8zPx').toString(CryptoJS.enc.Utf8);
 			report.financeApprove = CryptoJS.AES.decrypt(report.financeApprove, '3FJSei8zPx').toString(CryptoJS.enc.Utf8);
-			report.approvedBy = CryptoJS.AES.decrypt(report.approvedBy, '3FJSei8zPx').toString(CryptoJS.enc.Utf8);
+            report.approvedBy = CryptoJS.AES.decrypt(report.approvedBy, '3FJSei8zPx').toString(CryptoJS.enc.Utf8);
             report.reportTrainees.map(trainee =>{
                 var bytes  = CryptoJS.AES.decrypt(trainee.trainee_email, CryptoJS.enc.Hex.parse("253D3FB468A0E24677C28A624BE0F939"), {iv: CryptoJS.enc.Hex.parse("00000000000000000000000000000000")});
                 trainee.trainee_email = bytes.toString(CryptoJS.enc.Utf8);
@@ -882,10 +878,9 @@ traineeRoutes.route('/getMonthlyReport').post(function(req, res) {
                 bytes = CryptoJS.AES.decrypt(trainee.trainee_days_worked, '3FJSei8zPx');
                 trainee.trainee_days_worked = bytes.toString(CryptoJS.enc.Utf8);
                 trainee.monthly_expenses.map(expense => {
-                    //console.log(expense);
                     expense.expenseType = CryptoJS.AES.decrypt(expense.expenseType,'3FJSei8zPx').toString(CryptoJS.enc.Utf8);
                     expense.amount = CryptoJS.AES.decrypt(expense.amount,'3FJSei8zPx').toString(CryptoJS.enc.Utf8);
-					expense.status = CryptoJS.AES.decrypt(expense.status,'3FJSei8zPx').toString(CryptoJS.enc.Utf8);
+                    expense.status = CryptoJS.AES.decrypt(expense.status, '3FJSei8zPx').toString(CryptoJS.enc.Utf8);
                    } )
                 if(trainee.status === 'Active'){
                     bytes = CryptoJS.AES.decrypt(trainee.trainee_bank_name, '3FJSei8zPx');
@@ -923,9 +918,9 @@ traineeRoutes.route('/monthlyReport/updateStatus').post(function(req, res) {
 				report.reportTrainees.map(report =>{
 					report.monthly_expenses.map(report => {
 						report.status = CryptoJS.AES.encrypt('Approved', '3FJSei8zPx').toString();
-						console.log("expense status is", CryptoJS.AES.decrypt(report.status,'3FJSei8zPx').toString(CryptoJS.enc.Utf8));
 					})
-				})
+                });
+                report.markModified('reportTrainees');
                 report.save().then(report => {
                     res.json('Sucessfully updated ');
                 })
