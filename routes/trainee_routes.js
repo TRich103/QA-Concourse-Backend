@@ -527,14 +527,14 @@ traineeRoutes.route('/update/:id').post(function(req, res) {
             trainee.trainee_sort_code = CryptoJS.AES.encrypt(req.body.trainee_sort_code, '3FJSei8zPx').toString();
 			
 			//update new fields
-			trainee.trainee_gender = CryptoJS.AES.decrypt(req.body.trainee_gender, '3FJSei8zPx').toString(CryptoJS.enc.Utf8);
-            trainee.trainee_uniName = CryptoJS.AES.decrypt(req.body.trainee_uniName, '3FJSei8zPx').toString(CryptoJS.enc.Utf8);
-            trainee.trainee_phone = CryptoJS.AES.decrypt(req.body.trainee_phone, '3FJSei8zPx').toString(CryptoJS.enc.Utf8);
-            trainee.trainee_degree = CryptoJS.AES.decrypt(req.body.trainee_degree, '3FJSei8zPx').toString(CryptoJS.enc.Utf8);
-            trainee.trainee_chosenTech = CryptoJS.AES.decrypt(req.body.trainee_chosenTech, '3FJSei8zPx').toString(CryptoJS.enc.Utf8);
-            trainee.trainee_intake = CryptoJS.AES.decrypt(req.body.trainee_intake, '3FJSei8zPx').toString(CryptoJS.enc.Utf8);
-            trainee.trainee_geo = CryptoJS.AES.decrypt(req.body.trainee_geo, '3FJSei8zPx').toString(CryptoJS.enc.Utf8);
-            trainee.trainee_clearance = CryptoJS.AES.decrypt(req.body.trainee_clearance, '3FJSei8zPx').toString(CryptoJS.enc.Utf8);
+			trainee.trainee_gender = CryptoJS.AES.encrypt(req.body.trainee_gender, '3FJSei8zPx').toString(CryptoJS.enc.Utf8);
+            trainee.trainee_uniName = CryptoJS.AES.encrypt(req.body.trainee_uniName, '3FJSei8zPx').toString(CryptoJS.enc.Utf8);
+            trainee.trainee_phone = CryptoJS.AES.encrypt(req.body.trainee_phone, '3FJSei8zPx').toString(CryptoJS.enc.Utf8);
+            trainee.trainee_degree = CryptoJS.AES.encrypt(req.body.trainee_degree, '3FJSei8zPx').toString(CryptoJS.enc.Utf8);
+            trainee.trainee_chosenTech = CryptoJS.AES.encrypt(req.body.trainee_chosenTech, '3FJSei8zPx').toString(CryptoJS.enc.Utf8);
+            trainee.trainee_intake = CryptoJS.AES.encrypt(req.body.trainee_intake, '3FJSei8zPx').toString(CryptoJS.enc.Utf8);
+            trainee.trainee_geo = CryptoJS.AES.encrypt(req.body.trainee_geo, '3FJSei8zPx').toString(CryptoJS.enc.Utf8);
+            trainee.trainee_clearance = CryptoJS.AES.encrypt(req.body.trainee_clearance, '3FJSei8zPx').toString(CryptoJS.enc.Utf8);
 
             trainee.save().then(trainee => {
                 res.json('Trainee updated!');
