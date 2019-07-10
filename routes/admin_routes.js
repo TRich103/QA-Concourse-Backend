@@ -504,7 +504,11 @@ adminRoutes.route('/expenses/:id').post(function (req, res) {
             console.log(req.body.amount);
            
             let data = trainee.monthly_expenses;
-            data.push({"expenseType":CryptoJS.AES.encrypt(req.body.expenseType, '3FJSei8zPx').toString(),"amount":CryptoJS.AES.encrypt(req.body.amount, '3FJSei8zPx').toString()})
+            data.push({
+				"expenseType":CryptoJS.AES.encrypt(req.body.expenseType, '3FJSei8zPx').toString(),
+				"amount":CryptoJS.AES.encrypt(req.body.amount, '3FJSei8zPx').toString(),
+				"status":CryptoJS.AES.encrypt('pending', '3FJSei8zPx').toString()
+				})
             console.log("DATA")
             console.log(data)
             trainee.monthly_expenses = data;
@@ -548,6 +552,7 @@ adminRoutes.route('/getexp/:id').get(function(req,res){
              logger.verbose( moment().format('h:mm:ss a') +' Trainee '+ email + ' expenses have been gotten ');
              expense.expenseType = CryptoJS.AES.decrypt(expense.expenseType,'3FJSei8zPx').toString(CryptoJS.enc.Utf8);
              expense.amount = CryptoJS.AES.decrypt(expense.amount,'3FJSei8zPx').toString(CryptoJS.enc.Utf8);
+			 expense.status = CryptoJS.AES.decrypt(expense.status,'3FJSei8zPx').toString(CryptoJS.enc.Utf8);
             } )
             res.json(trainee)
         }
@@ -555,6 +560,41 @@ adminRoutes.route('/getexp/:id').get(function(req,res){
     .catch(err => {
         res.status(400).send("couldnt get");
     });
+});
+
+//Plan B on update Expenses
+adminRoutes.route('/updateExpenses/:id').post(function(req, res){
+	Trainee.findById(req.params.id, function (err, trainee) {
+        if (!trainee) {
+            console.log('notFound');
+            res.status(404).send("data is not found");
+        }
+        else {
+            let email = CryptoJS.AES.decrypt(trainee.trainee_email,CryptoJS.enc.Hex.parse("253D3FB468A0E24677C28A624BE0F939"), { iv: CryptoJS.enc.Hex.parse("00000000000000000000000000000000") }).toString(CryptoJS.enc.Utf8);
+            let logger = databaseLogger.createLogger(CryptoJS.AES.decrypt(trainee.trainee_email, CryptoJS.enc.Hex.parse("253D3FB468A0E24677C28A624BE0F939"), { iv: CryptoJS.enc.Hex.parse("00000000000000000000000000000000") }).toString(CryptoJS.enc.Utf8));
+            
+			trainee.monthly_expenses.map(expense => {
+             expense.expenseType = CryptoJS.AES.encrypt(expense.expenseType,'3FJSei8zPx').toString(CryptoJS.enc.Utf8);
+             expense.amount = CryptoJS.AES.encrypt(expense.amount,'3FJSei8zPx').toString(CryptoJS.enc.Utf8);
+			 expense.status = CryptoJS.AES.encrypt(req.body.status,'3FJSei8zPx').toString(CryptoJS.enc.Utf8);
+            })
+			
+			let data = trainee.monthly_expenses;
+			
+			trainee.monthly_expenses = data;
+			
+			trainee.save().then(trainee => {
+                res.json('Trainee updated!');
+				console.log(res.json);
+                winston.info('Trainee: ' + email + ' has requested expenses for '+req.body.expenseType + " for the amount of "+req.body.amount + " added by "+name+" "+moment().format('h:mm:ss a'));
+                logger.info('Trainee: ' + email +' has requested expenses for '+req.body.expenseType + " for the amount of "+req.body.amount + " added by "+name+" "+moment().format('h:mm:ss a'));
+            }).catch(err => {
+                    res.status(400).send("Update not possible");
+                    winston.error('Trainee: ' + email + ' tried to request expense but got an error: ' + err + " " + moment().format('h:mm:ss a'))
+                    logger.error('Trainee: ' + email + ' tried to request expense but got an error: ' + err + " " + moment().format('h:mm:ss a'))
+               });
+        }
+    })
 });
 
 //gets trainee by id and removes expense
@@ -578,6 +618,7 @@ adminRoutes.route('/removeExpenses/:id').post(function (req, res) {
                     console.log(ele);
                     ele.amount = CryptoJS.AES.encrypt(ele.amount, '3FJSei8zPx').toString();
                     ele.expenseType = CryptoJS.AES.encrypt(ele.expenseType, '3FJSei8zPx').toString();
+					          ele.status = CryptoJS.AES.encrypt(ele.status, '3FJSei8zPx').toString();
                     count++;
                     return ele;
                 }else{
@@ -616,6 +657,7 @@ adminRoutes.route('/removeExpenses/:id').post(function (req, res) {
                     //console.log(expense);
                     expense.expenseType = CryptoJS.AES.decrypt(expense.expenseType,'3FJSei8zPx').toString(CryptoJS.enc.Utf8);
                     expense.amount = CryptoJS.AES.decrypt(expense.amount,'3FJSei8zPx').toString(CryptoJS.enc.Utf8);
+					expense.status = CryptoJS.AES.decrypt(expense.status,'3FJSei8zPx').toString(CryptoJS.enc.Utf8);
                 } )
            
             let data = trainee.monthly_expenses;

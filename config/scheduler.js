@@ -232,15 +232,23 @@ const autoEmailStaff =  new CronJob('00 30 10,16 * * 1,2,3,4,5', function() {
 }, null, true, 'Europe/London');
 autoEmailStaff.start();
 
-//clears expenses every month
+//clears expenses every month 
 const clearExpenses =  new CronJob('0 1 1 * *', function() {
-	pending = [];
-	Trainee.find(function(err, trainee) {
-	   trainee.map(function(currentTrainee){
-		   currentTrainee.monthly_expenses = []
-		   currentTrainee.save()
-	   })
-   })
-   console.log("cleared expenses")
+    pending = [];
+    Trainee.find(function(err, trainee) {
+        let status = CryptoJS.AES.decrypt(currentUser.monthly_expenses.status, '3FJSei8zPx').toString(CryptoJS.enc.Utf8);
+        if(status === 'Approved'){
+            trainee.map(function(currentTrainee){currentTrainee.monthly_expenses = [];
+                currentTrainee.markModified('monthly_expenses');
+                currentTrainee.save()
+            })
+        }
+        else{
+            trainee.map(function(currentTrainee){
+                currentTrainee.save();
+            })
+        }
+    })
+    console.log("cleared expenses")
 }, null, true, 'Europe/London');
 clearExpenses.start()

@@ -84,6 +84,15 @@ let Trainee = new Schema({
         type: Array,
         default: []
     },
+    apartment:{
+        type: String
+    },
+    apartment_start_date:{
+        type: String
+    },
+    apartment_end_date:{
+      type: String
+    },
     trainee_gender: {
         type: String,
     },
@@ -213,6 +222,14 @@ test.find({}, function(err, docs){
             if(doc.date_Achieved === undefined){
                 doc.date_Achieved = CryptoJS.AES.encrypt("", '3FJSei8zPx').toString();
             }
+            if(doc.monthly_expenses.length > 0){
+                doc.monthly_expenses.map(expense => {
+                    if(expense.status === undefined){
+                        expense.status = CryptoJS.AES.encrypt("Pending", '3FJSei8zPx').toString();
+                    }
+                });
+            }
+            doc.markModified('monthly_expenses');
             doc.save();
         })
     }
