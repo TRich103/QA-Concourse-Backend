@@ -44,8 +44,8 @@ settingsRoutes.route('/', requireAuth, AuthenticationController.roleAuthorizatio
         };
         console.log(settings);
         res.json(settings);
-        logger.verbose('database collected settings successfully');
-			winston.info('database collected settings successfully');
+        logger.verbose(moment().format('h:mm:ss a')+' database collected settings successfully');
+		winston.info(moment().format('h:mm:ss a')+' database collected settings successfully');
         });
     });
 //Edits the settings
@@ -78,13 +78,13 @@ settingsRoutes.route('/editSettings', requireAuth, AuthenticationController.role
             }
                 settings.save().then(settings =>{
                     res.json('Settings have been updated: ' + settings.default_bursary);
-				    winston.info('Settings have been changed');
-                    logger.info('Settings have been changed');
+				    winston.info(moment().format('h:mm:ss a') + ' Settings have been changed');
+                    logger.info(moment().format('h:mm:ss a') + ' Settings have been changed');
                 }).catch(err => {
                     res.status(205).send('Changing settings failed');
                     console.log(err);
-                    winston.error('Changing settings failed. Error: '+err);
-                    logger.error('Changing settings failed. Error: '+err);
+                    winston.error(moment().format('h:mm:ss a') + ' Changing settings failed. Error: '+err);
+                    logger.error(moment().format('h:mm:ss a') + ' Changing settings failed. Error: '+err);
                 });
             };
     });

@@ -31,6 +31,12 @@ var monthly = module.exports = mongoose.model('Monthly.Report', MonthlySchema);
 monthly.find({}, function(err, reports){
   if(!err){
       reports.map(report => {
+          if(report.approvedBy === undefined){
+              report.approvedBy = CryptoJS.AES.encrypt("", '3FJSei8zPx').toString();
+          }
+          if(report.financeApprove === undefined){
+              report.financeApprove = CryptoJS.AES.encrypt("", '3FJSei8zPx').toString();
+          }
         let stat = CryptoJS.AES.decrypt(report.status, '3FJSei8zPx').toString(CryptoJS.enc.Utf8);
         if(stat !== "FinanceApproved"){
           if (report.reportTrainees.length > 0) {

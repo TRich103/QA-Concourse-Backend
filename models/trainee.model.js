@@ -91,6 +91,60 @@ let Trainee = new Schema({
         type: String
     },
     apartment_end_date:{
+      type: String
+    },
+    trainee_gender: {
+        type: String,
+    },
+    trainee_uniName: {
+        type: String,
+    },
+    trainee_phone: {
+        type: String
+    },
+    trainee_degree: {
+        type: String,
+    },
+    trainee_chosenTech: {
+        type: String,
+    },
+    trainee_intake: {
+        type: String
+    },
+    trainee_geo: {
+        type: String,
+    },
+    trainee_clearance: {
+        type: String,
+    },
+    trainee_businessEmail: {
+        type: String
+    },
+    trainee_aptitude_score: {
+        type: String
+    },
+    trainee_languages:{
+        type: String
+    },
+    documents_signed:{
+        type: String
+    },
+    sent_Agreement:{
+        type: String
+    },
+    received_Agreement:{
+        type: String
+    },
+    accomodation: {
+        type: String
+    },
+    java_test_Score:{
+        type: String
+    },
+    MTE : {
+        type: String
+    },
+    date_Achieved:{
         type: String
     }
 });
@@ -111,7 +165,7 @@ module.exports.comparePassword = function(traineePassword, hash, callback){
     });
   }
 
-  test.find({}, function(err, docs){
+test.find({}, function(err, docs){
     if(!err){
         docs.map(doc => {
             if(doc.trainee_gender === undefined){
