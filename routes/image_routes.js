@@ -3,23 +3,26 @@ var express =require('express');
 var Image =require('../models/image');
 var ImageRouter =express.Router();
 var aws = require('aws-sdk');
-var bodyParser = require('body-parser');
-var accessKeyId = process.env.AWS_ACCESS_KEY;
-var secretAccessKey = process.env.AWS_SECRET_KEY;
+var accessKey = process.env.AWS_ACCESS_KEY;
+var secretAccess = process.env.AWS_SECRET_KEY;
 var s3bucket = process.env.S3_BUCKET;
 const multer =require('multer');
 const multerS3 =require('multer-s3');
 
-var app = express(),
-    s3 = new aws.S3();
+
+var s3 = new aws.S3();
 
 aws.config.update({
-    secretAccessKey: secretAccessKey,
-    accessKeyId: accessKeyId,
+    secretAccessKey: secretAccess,
+    accessKeyId: accessKey,
     region: 'eu-west-2'
 });
 
-app.use(bodyParser.json());
+s3.config.update({
+    secretAccessKey: secretAccess,
+    accessKeyId: accessKey,
+    region: 'eu-west-2'
+});
 
 //fileFilter variable defines the file types
 //which are to be accepted by the server
@@ -36,16 +39,20 @@ var upload = multer({
     storage: multerS3({
         s3: s3,
         bucket: s3bucket,
-        key: function (req, file, cb) {
+        filename: function (req, file, cb) {
+          cb(null, Date.now() + file.originalname);
+          },
+          key: function (req, file, cb) {
             console.log(file);
-            cb(null,file.originalname); //use Date.now() for unique file keys
-        }
+            cb(null, Date.now().toString())
+          }
     }),
     limits: {
         fileSize: 1024 * 1024 * 5
     },
     fileFilter: fileFilter
 });
+
 
 /*const storage =multerS3({
     s3: s3,
@@ -114,13 +121,13 @@ ImageRouter.route("/uploadmulter")
         });
 
         newImage.save()
-            .then((result) => {
-                console.log(result);
-                res.status(200).json({
-                    success: true,
-                    document: result
-                });
-            })
-            .catch((err) => next(err));
+        .then((result) => {
+            console.log(result);
+            res.status(200).json({
+                success: true,
+                document: result
+            });
+        })
+    .catch((err) => next(err));
     });
     module.exports = ImageRouter;
