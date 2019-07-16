@@ -794,23 +794,24 @@ adminRoutes.route('/updateNotes/:id').post(function(req, res){
     })
 });
 
-//gets trainee by id and removes notes
+//gets users removes notes
 adminRoutes.route('/removeNotes/:id').post(function (req, res) {
     let name;
     User.findById(req.body.addedBy, function (err, user) {
         name = CryptoJS.AES.decrypt(user.fname, 'c9nMaacr2Y').toString(CryptoJS.enc.Utf8) + " "+CryptoJS.AES.decrypt(user.lname, 'c9nMaacr2Y').toString(CryptoJS.enc.Utf8);
     })
 
-    function arrayRemove(arr, json, location) {
+    function arrayRemoveNote(arr, json, location) {
         console.log('here it is: ' + location);
         let count = 0;
         let result = arr.filter(function(ele){
-                if(ele.note !== json.note ){
+                console.log(json.note);
+                if(ele.note !== json.note){
                     console.log(ele);
                     ele.note = CryptoJS.AES.encrypt(ele.note, '3FJSei8zPx').toString();
                     count++;
                     return ele;
-                } else{
+                }else{
                     console.log('count where found is: '+count);
                     console.log(ele);
                     if(count === location){
@@ -828,7 +829,6 @@ adminRoutes.route('/removeNotes/:id').post(function (req, res) {
 
     //arrayRemove(array, 6);
     Trainee.findById(req.params.id, function (err, trainee) {
-        console.log(trainee);
         if (!trainee) {
             console.log('notFound');
             res.status(404).send("data is not found");
@@ -847,23 +847,22 @@ adminRoutes.route('/removeNotes/:id').post(function (req, res) {
 
             let data = trainee.trainee_notes;
             console.log('When sent, it is: '+req.body.location);
-            data = arrayRemove(data, {"note": req.body.note}, req.body.location);
+            data = arrayRemoveNote(data, {"note": req.body.note}, req.body.location);
             trainee.trainee_notes = data;
 
             trainee.save().then(trainee => {
                 res.json('Trainee updated!');
-                winston.info(moment().format('h:mm:ss a') +' - Changed By('+name+"): "+ ' removed trainee :'+ email + ' note \" ' + req.body.note + " \" ");
-                logger.info(moment().format('h:mm:ss a') + ' - Changed By('+name+"): "+' removed trainee: ' + email + ' note \" ' + req.body.note + " \" ");
+                winston.info(moment().format('h:mm:ss a') +' - Changed By('+name+"): "+ ' removed trainee :'+ email + ' note: ' + req.body.note);
+                logger.info(moment().format('h:mm:ss a') + ' - Changed By('+name+"): "+' removed trainee: ' + email + ' note: '+req.body.note);
             })
                 .catch(err => {
                     res.status(400).send("Update not possible");
-                    winston.error(moment().format('h:mm:ss a') + ' - Changed By('+name+"): "+' failed to remove trainee: ' + email + ' note \" ' + req.body.note + " \" but got :"+ err)
-                    logger.error(moment().format('h:mm:ss a') + ' - Changed By('+name+"): "+' failed to remove trainee: ' + email + ' note \" ' + req.body.note + " \" but got :"+ err)
+                    winston.error(moment().format('h:mm:ss a') + ' - Changed By('+name+"): "+' failed to remove trainee: ' + email + ' note: '+req.body.note +"but got :"+ err)
+                    logger.error(moment().format('h:mm:ss a') + ' - Changed By('+name+"): "+' failed to remove trainee: ' + email + ' note: '+req.body.note +"but got :"+ err)
                 });
         }
     });
 });
-
 
 
 
