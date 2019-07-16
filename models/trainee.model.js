@@ -146,6 +146,10 @@ let Trainee = new Schema({
     },
     date_Achieved:{
         type: String
+    },
+    trainee_notes:{
+        type: Array,
+        default: []
     }
 });
 module.exports = mongoose.model('Trainee', Trainee);
@@ -226,6 +230,13 @@ test.find({}, function(err, docs){
                 doc.monthly_expenses.map(expense => {
                     if(expense.status === undefined){
                         expense.status = CryptoJS.AES.encrypt("Pending", '3FJSei8zPx').toString();
+                    }
+                });
+            }
+            if(doc.trainee_notes.length > 0){
+                doc.trainee_notes.map(note => {
+                    if(note.status === undefined){
+                        note.status = CryptoJS.AES.encrypt("Pending", '3FJSei8zPx').toString();
                     }
                 });
             }
