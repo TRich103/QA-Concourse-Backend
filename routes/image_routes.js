@@ -2,30 +2,27 @@
 var express =require('express');
 var Image =require('../models/image');
 var ImageRouter =express.Router();
+var aws = require('aws-sdk');
+var bodyParser = require('body-parser');
+var accessKeyId = process.env.AWS_ACCESS_KEY;
+var secretAccessKey = process.env.AWS_SECRET_KEY;
+var s3bucket = process.env.S3_BUCKET;
 const multer =require('multer');
+const multerS3 =require('multer-s3');
 
-/*
+var app = express(),
+    s3 = new aws.S3();
 
-storage variable is where the
-path to the destination folder being used
-and the filename for the file uploaded is defined
-*/
-const storage =multer.diskStorage({
-    destination: function(req, file, cb){
-        cb(null, './uploads/');
-        //cb(null, 'C:/Users/spiro/QABursaryProject/QA-Concourse-Backend/uploads');
-    },
-    filename: function(req, file, cb){
-        cb(null, file.originalname + Date.now() + fileObj[file.mimetype]);
-    }
+aws.config.update({
+    secretAccessKey: secretAccessKey,
+    accessKeyId: accessKeyId,
+    region: 'eu-west-2'
 });
 
-/*
+app.use(bodyParser.json());
 
-fileFilter variable defines the file types
-which are to be accepted by the server
-
-*/
+//fileFilter variable defines the file types
+//which are to be accepted by the server
 const fileFilter =(req, file, cb) =>{
     if (file.mimetype === 'image/jpeg' || file.mimetype === 'image/png') {
         cb(null, true);
@@ -35,14 +32,55 @@ const fileFilter =(req, file, cb) =>{
     }
 }
 
+var upload = multer({
+    storage: multerS3({
+        s3: s3,
+        bucket: s3bucket,
+        key: function (req, file, cb) {
+            console.log(file);
+            cb(null,file.originalname); //use Date.now() for unique file keys
+        }
+    }),
+    limits: {
+        fileSize: 1024 * 1024 * 5
+    },
+    fileFilter: fileFilter
+});
+
+/*const storage =multerS3({
+    s3: s3,
+    bucket: 'process.env.S3_BUCKET',
+    metadata: function (req, file, cb) {
+      cb(null, {fieldName: file.fieldname});
+    },
+    key: function (req, file, cb) {
+      cb(null, Date.now().toString())
+    }
+  });
 /*
+
+storage variable is where the
+path to the destination folder being used
+and the filename for the file uploaded is defined
+*/
+/*const storage =multer.diskStorage({
+    destination: function(req, file, cb){
+        cb(null, './uploads/');
+        //cb(null, 'C:/Users/spiro/QABursaryProject/QA-Concourse-Backend/uploads');
+    },
+    filename: function(req, file, cb){
+        let ext = file.originalname.substring(file.originalname.lastIndexOf('.'), file.originalname.length);
+        cb(null, file.originalname + ext);
+    }
+});
+
 
 The upload variable creates an instance of the multer 
 middleware with the storage details, maximum acceptable file size 
 and filter options being set
 
 */
-const upload = multer({
+/*const upload = multer({
 
     storage: storage,
     limits: {

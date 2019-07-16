@@ -35,6 +35,7 @@ adminRoutes.route('/', requireAuth, AuthenticationController.roleAuthorization([
                 currentStaff.fname = CryptoJS.AES.decrypt(currentStaff.fname, 'c9nMaacr2Y').toString(CryptoJS.enc.Utf8);
                 currentStaff.lname = CryptoJS.AES.decrypt(currentStaff.lname, 'c9nMaacr2Y').toString(CryptoJS.enc.Utf8);
                 currentStaff.status = CryptoJS.AES.decrypt(currentStaff.status, '3FJSei8zPx').toString(CryptoJS.enc.Utf8);
+                currentStaff.profileImage = currentStaff.profileImage;
             });
             res.json(staff);
 			logger.verbose('All staff users were collected successfully '+moment().format('h:mm:ss a'));            
@@ -69,6 +70,7 @@ adminRoutes.route('/staff/:id').get(function(req, res) {
 		    staff.lname = CryptoJS.AES.decrypt(staff.lname, 'c9nMaacr2Y').toString(CryptoJS.enc.Utf8);
 		    staff.email = CryptoJS.AES.decrypt(staff.email, CryptoJS.enc.Hex.parse("253D3FB468A0E24677C28A624BE0F939"), {iv: CryptoJS.enc.Hex.parse("00000000000000000000000000000000")}).toString(CryptoJS.enc.Utf8);
             staff.status = CryptoJS.AES.decrypt(staff.status, '3FJSei8zPx').toString(CryptoJS.enc.Utf8);
+            staff.profileImage = staff.profileImage;
             res.json(staff);
             let logger = databaseLogger.createLogger(staff.email);
             winston.info('Returned Staff details: ' + staff.email + " " + moment().format('h:mm:ss a'));

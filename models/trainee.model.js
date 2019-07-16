@@ -11,6 +11,9 @@ let Trainee = new Schema({
         type: String,
         required: true
     },
+    trainee_profileImage: {
+        type: String
+      },
     trainee_email: {
         type: String,
         required: true, 
