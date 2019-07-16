@@ -69,6 +69,9 @@ let Trainee = new Schema({
         type: String,
         required: true
     },
+	role:{
+		type:String,
+	},
     bursary_amount:{
         type: String,
         format: Number,
@@ -170,6 +173,9 @@ test.find({}, function(err, docs){
         docs.map(doc => {
             if(doc.trainee_gender === undefined){
                 doc.trainee_gender = CryptoJS.AES.encrypt("", '3FJSei8zPx').toString();
+            }
+			if(doc.role === undefined){
+                doc.role = "trainee";
             }
             if(doc.trainee_uniName === undefined){
                 doc.trainee_uniName = CryptoJS.AES.encrypt("", '3FJSei8zPx').toString();

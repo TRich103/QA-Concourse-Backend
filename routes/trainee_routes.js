@@ -73,7 +73,9 @@ traineeRoutes.route('/', requireAuth, AuthenticationController.roleAuthorization
                 currentTrainee.trainee_intake = CryptoJS.AES.decrypt(currentTrainee.trainee_intake, '3FJSei8zPx').toString(CryptoJS.enc.Utf8);
                 currentTrainee.trainee_geo = CryptoJS.AES.decrypt(currentTrainee.trainee_geo, '3FJSei8zPx').toString(CryptoJS.enc.Utf8);
                 currentTrainee.trainee_clearance = CryptoJS.AES.decrypt(currentTrainee.trainee_clearance, '3FJSei8zPx').toString(CryptoJS.enc.Utf8);
-                currentTrainee.monthly_expenses.map(expense => {
+                currentTrainee.role =CryptoJS.AES.decrypt(currentTrainee.role, '3FJSei8zPx').toString(CryptoJS.enc.Utf8);
+				
+				currentTrainee.monthly_expenses.map(expense => {
                     expense.expenseType = CryptoJS.AES.decrypt(expense.expenseType,'3FJSei8zPx').toString(CryptoJS.enc.Utf8);
                     expense.amount = CryptoJS.AES.decrypt(expense.amount,'3FJSei8zPx').toString(CryptoJS.enc.Utf8);
 					expense.status = CryptoJS.AES.decrypt(expense.status,'3FJSei8zPx').toString(CryptoJS.enc.Utf8);
@@ -140,7 +142,9 @@ traineeRoutes.route('/:id').get(function(req, res) {
             trainee.trainee_intake = CryptoJS.AES.decrypt(trainee.trainee_intake, '3FJSei8zPx').toString(CryptoJS.enc.Utf8);
             trainee.trainee_geo = CryptoJS.AES.decrypt(trainee.trainee_geo, '3FJSei8zPx').toString(CryptoJS.enc.Utf8);
             trainee.trainee_clearance = CryptoJS.AES.decrypt(trainee.trainee_clearance, '3FJSei8zPx').toString(CryptoJS.enc.Utf8);
-            if(trainee.status === 'Active' && trainee.bursary === "True"){
+			trainee.role =trainee.role;
+			
+		   if(trainee.status === 'Active' && trainee.bursary === "True"){
                 bytes = CryptoJS.AES.decrypt(trainee.trainee_bank_name, '3FJSei8zPx');
                 trainee.trainee_bank_name = bytes.toString(CryptoJS.enc.Utf8);
                 bytes = CryptoJS.AES.decrypt(trainee.trainee_account_no, '3FJSei8zPx');
@@ -409,10 +413,9 @@ traineeRoutes.route('/add').post(function(req, res) {
     req.body.bursary = CryptoJS.AES.encrypt(req.body.bursary, '3FJSei8zPx').toString();
 	req.body.bursary_amount = CryptoJS.AES.encrypt(req.body.bursary_amount, '3FJSei8zPx').toString();
 	req.body.trainee_days_worked = CryptoJS.AES.encrypt('NotSet', '3FJSei8zPx').toString();
-
-
-	
-    let trainee = new Trainee(req.body);
+	req.body.role = 'trainee';
+    
+	let trainee = new Trainee(req.body);
     trainee.save()
         .then(trainee => {
 			console.log('User: ' + trainee.added_By + ' has created a new trainee: '+ req.body.trainee_fname + " "+ req.body.trainee_lname);
@@ -529,14 +532,14 @@ traineeRoutes.route('/update/:id').post(function(req, res) {
             trainee.trainee_sort_code = CryptoJS.AES.encrypt(req.body.trainee_sort_code, '3FJSei8zPx').toString();
 			
 			//update new fields
-			trainee.trainee_gender = CryptoJS.AES.decrypt(req.body.trainee_gender, '3FJSei8zPx').toString(CryptoJS.enc.Utf8);
-            trainee.trainee_uniName = CryptoJS.AES.decrypt(req.body.trainee_uniName, '3FJSei8zPx').toString(CryptoJS.enc.Utf8);
-            trainee.trainee_phone = CryptoJS.AES.decrypt(req.body.trainee_phone, '3FJSei8zPx').toString(CryptoJS.enc.Utf8);
-            trainee.trainee_degree = CryptoJS.AES.decrypt(req.body.trainee_degree, '3FJSei8zPx').toString(CryptoJS.enc.Utf8);
-            trainee.trainee_chosenTech = CryptoJS.AES.decrypt(req.body.trainee_chosenTech, '3FJSei8zPx').toString(CryptoJS.enc.Utf8);
-            trainee.trainee_intake = CryptoJS.AES.decrypt(req.body.trainee_intake, '3FJSei8zPx').toString(CryptoJS.enc.Utf8);
-            trainee.trainee_geo = CryptoJS.AES.decrypt(req.body.trainee_geo, '3FJSei8zPx').toString(CryptoJS.enc.Utf8);
-            trainee.trainee_clearance = CryptoJS.AES.decrypt(req.body.trainee_clearance, '3FJSei8zPx').toString(CryptoJS.enc.Utf8);
+			trainee.trainee_gender = CryptoJS.AES.encrypt(req.body.trainee_gender, '3FJSei8zPx').toString();
+            trainee.trainee_uniName = CryptoJS.AES.encrypt(req.body.trainee_uniName, '3FJSei8zPx').toString();
+            trainee.trainee_phone = CryptoJS.AES.encrypt(req.body.trainee_phone, '3FJSei8zPx').toString();
+            trainee.trainee_degree = CryptoJS.AES.encrypt(req.body.trainee_degree, '3FJSei8zPx').toString();
+            trainee.trainee_chosenTech = CryptoJS.AES.encrypt(req.body.trainee_chosenTech, '3FJSei8zPx').toString();
+            trainee.trainee_intake = CryptoJS.AES.encrypt(req.body.trainee_intake, '3FJSei8zPx').toString();
+            trainee.trainee_geo = CryptoJS.AES.encrypt(req.body.trainee_geo, '3FJSei8zPx').toString();
+            trainee.trainee_clearance = CryptoJS.AES.encrypt(req.body.trainee_clearance, '3FJSei8zPx').toString();
 
             trainee.save().then(trainee => {
                 res.json('Trainee updated!');
