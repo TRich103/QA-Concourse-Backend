@@ -762,39 +762,79 @@ adminRoutes.route('/getNotes/:id').get(function(req,res){
 });
 
 //Plan B on update notes
-adminRoutes.route('/updateNotes/:id').post(function(req, res){
-	Trainee.findById(req.params.id, function (err, trainee) {
+adminRoutes.route('/updateNotes/:id').post(function (req, res) {
+    let name;
+    User.findById(req.body.addedBy, function (err, user) {
+        name = CryptoJS.AES.decrypt(user.fname, 'c9nMaacr2Y').toString(CryptoJS.enc.Utf8) + " "+CryptoJS.AES.decrypt(user.lname, 'c9nMaacr2Y').toString(CryptoJS.enc.Utf8);
+    })
+
+    function arrayUpdateNote(arr, json, newNote, location) {
+        console.log('here it is: ' + location);
+        let count = 0;
+        let result = arr.filter(function(ele){
+                if(ele.note !== json.note){
+                    console.log(ele);
+                    ele.note = CryptoJS.AES.encrypt(ele.note, '3FJSei8zPx').toString();
+                    count++;
+                    return ele;
+                }else{
+                    console.log('count where found is: '+count);
+                    console.log(ele);
+                    if(count === location){
+                    ele.note = newNote.note;
+                     console.log(ele);
+                       ele.note = CryptoJS.AES.encrypt(ele.note, '3FJSei8zPx').toString();
+                       console.log(ele);
+                        count++;
+                        return ele;
+                    }
+                    else{
+                        ele.note = CryptoJS.AES.encrypt(ele.note, '3FJSei8zPx').toString();
+                        count++;
+                        return ele;
+                    }
+                }
+        });
+        return result;
+     }
+
+    Trainee.findById(req.params.id, function (err, trainee) {
         if (!trainee) {
             console.log('notFound');
             res.status(404).send("data is not found");
         }
         else {
-            let email = CryptoJS.AES.decrypt(trainee.trainee_email,CryptoJS.enc.Hex.parse("253D3FB468A0E24677C28A624BE0F939"), { iv: CryptoJS.enc.Hex.parse("00000000000000000000000000000000") }).toString(CryptoJS.enc.Utf8);
-            let logger = databaseLogger.createLogger(CryptoJS.AES.decrypt(trainee.trainee_email, CryptoJS.enc.Hex.parse("253D3FB468A0E24677C28A624BE0F939"), { iv: CryptoJS.enc.Hex.parse("00000000000000000000000000000000") }).toString(CryptoJS.enc.Utf8));
+            console.log('trainee found');
+            let email = CryptoJS.AES.decrypt(trainee.trainee_email
+                , CryptoJS.enc.Hex.parse("253D3FB468A0E24677C28A624BE0F939")
+                , { iv: CryptoJS.enc.Hex.parse("00000000000000000000000000000000") })
+                .toString(CryptoJS.enc.Utf8);
+                let logger = databaseLogger.createLogger(email);
 
-			trainee.trainee_notes.map(note => {
-             note.note = CryptoJS.AES.encrypt(note.note,'3FJSei8zPx').toString(CryptoJS.enc.Utf8);
-            })
-
-			let data = trainee.trainee_notes;
-
-			trainee.trainee_notes = data;
-
-			trainee.save().then(trainee => {
+            trainee.trainee_notes.map(note => {
+                    note.note = CryptoJS.AES.decrypt(note.note,'3FJSei8zPx').toString(CryptoJS.enc.Utf8);
+                } )
+            let data = trainee.trainee_notes;
+            console.log('When sent, it is: '+req.body.location);
+            data = arrayUpdateNote(data, {"note": req.body.note},{"note": req.body.newNote}, req.body.location);
+            trainee.trainee_notes = data;
+            console.log(trainee.trainee_notes);
+            trainee.save().then(trainee => {
                 res.json('Trainee updated!');
-				console.log(res.json);
-                winston.info('Trainee: ' + email + ' has requested notes, noting \" '+req.body.note + " \" added by "+name+" "+moment().format('h:mm:ss a'));
-                logger.info('Trainee: ' + email +' has requested notes, noting \" '+req.body.note + " \" added by "+name+" "+moment().format('h:mm:ss a'));
-            }).catch(err => {
+                console.log("Success");
+                winston.info(moment().format('h:mm:ss a') +' - Changed By('+name+"): "+ ' update trainee :'+ email + ' note: ' + req.body.note);
+                logger.info(moment().format('h:mm:ss a') + ' - Changed By('+name+"): "+' update trainee: ' + email + ' note: '+req.body.note);
+            })
+                .catch(err => {
                     res.status(400).send("Update not possible");
-                    winston.error('Trainee: ' + email + ' tried to request note but got an error: ' + err + " " + moment().format('h:mm:ss a'))
-                    logger.error('Trainee: ' + email + ' tried to request note but got an error: ' + err + " " + moment().format('h:mm:ss a'))
-               });
+                    console.log("ERROR 404");
+                    winston.error(moment().format('h:mm:ss a') + ' - Changed By('+name+"): "+' failed to update trainee: ' + email + ' note: '+req.body.note +"but got :"+ err)
+                    logger.error(moment().format('h:mm:ss a') + ' - Changed By('+name+"): "+' failed to update trainee: ' + email + ' note: '+req.body.note +"but got :"+ err)
+                });
         }
-    })
+    });
 });
 
-//gets users removes notes
 adminRoutes.route('/removeNotes/:id').post(function (req, res) {
     let name;
     User.findById(req.body.addedBy, function (err, user) {
@@ -844,7 +884,6 @@ adminRoutes.route('/removeNotes/:id').post(function (req, res) {
             trainee.trainee_notes.map(note => {
                     note.note = CryptoJS.AES.decrypt(note.note,'3FJSei8zPx').toString(CryptoJS.enc.Utf8);
                 } )
-
             let data = trainee.trainee_notes;
             console.log('When sent, it is: '+req.body.location);
             data = arrayRemoveNote(data, {"note": req.body.note}, req.body.location);
