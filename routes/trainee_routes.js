@@ -73,7 +73,7 @@ traineeRoutes.route('/', requireAuth, AuthenticationController.roleAuthorization
                 currentTrainee.trainee_intake = CryptoJS.AES.decrypt(currentTrainee.trainee_intake, '3FJSei8zPx').toString(CryptoJS.enc.Utf8);
                 currentTrainee.trainee_geo = CryptoJS.AES.decrypt(currentTrainee.trainee_geo, '3FJSei8zPx').toString(CryptoJS.enc.Utf8);
                 currentTrainee.trainee_clearance = CryptoJS.AES.decrypt(currentTrainee.trainee_clearance, '3FJSei8zPx').toString(CryptoJS.enc.Utf8);
-                currentTrainee.role =CryptoJS.AES.decrypt(currentTrainee.role, '3FJSei8zPx').toString(CryptoJS.enc.Utf8);
+                currentTrainee.role =currentTrainee.role;
 				
 				currentTrainee.monthly_expenses.map(expense => {
                     expense.expenseType = CryptoJS.AES.decrypt(expense.expenseType,'3FJSei8zPx').toString(CryptoJS.enc.Utf8);
