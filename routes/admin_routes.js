@@ -686,5 +686,32 @@ adminRoutes.route('/removeExpenses/:id').post(function (req, res) {
             });
         });
 
+//Find trainee by id & store in archive table
+
+adminRoutes.route('/archive/:id').get(function(req, res) {
+    User.findById(req.params.id, function(err, user) {
+        if(!user){
+            res.status(404).send("user is not found");
+        }
+        else{
+            let email = CryptoJS.AES.decrypt(user.email
+                , CryptoJS.enc.Hex.parse("253D3FB468A0E24677C28A624BE0F939")
+                , {iv: CryptoJS.enc.Hex.parse("00000000000000000000000000000000")})
+                .toString(CryptoJS.enc.Utf8)
+            let logger = databaseLogger.createLogger(email);
+            user.save().then(user => {
+                res.json('User archived');
+                logger.info(moment().format('h:mm:ss a') + 'User: '+email+' has been archived ');
+                winston.info(moment().format('h:mm:ss a') + 'User: '+email+' has been archived ');
+            })
+            .catch(err => {
+                res.status(400).send("Archive not possible");
+                logger.error(moment().format('h:mm:ss a') +' User:'+email+' could not be archived. Error: ' + err)
+                winston.error(moment().format('h:mm:ss a') + ' User:'+email+' could not be archived. Error: ' + err)
+            });
+        }
+    });
+  });   
+
 
 module.exports = adminRoutes;
