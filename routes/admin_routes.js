@@ -760,8 +760,7 @@ adminRoutes.route('/getNotes/:id').get(function(req,res){
         res.status(400).send("couldnt get");
     });
 });
-
-//Plan B on update notes
+//update notes
 adminRoutes.route('/updateNotes/:id').post(function (req, res) {
     let name;
     User.findById(req.body.addedBy, function (err, user) {
@@ -818,7 +817,7 @@ adminRoutes.route('/updateNotes/:id').post(function (req, res) {
             console.log('When sent, it is: '+req.body.location);
             data = arrayUpdateNote(data, {"note": req.body.note},{"note": req.body.newNote}, req.body.location);
             trainee.trainee_notes = data;
-            console.log(trainee.trainee_notes);
+            console.log(trainee.trainee_notes)
             trainee.save().then(trainee => {
                 res.json('Trainee updated!');
                 console.log("Success");
@@ -827,7 +826,7 @@ adminRoutes.route('/updateNotes/:id').post(function (req, res) {
             })
                 .catch(err => {
                     res.status(400).send("Update not possible");
-                    console.log("ERROR 404");
+                    console.log("fail");
                     winston.error(moment().format('h:mm:ss a') + ' - Changed By('+name+"): "+' failed to update trainee: ' + email + ' note: '+req.body.note +"but got :"+ err)
                     logger.error(moment().format('h:mm:ss a') + ' - Changed By('+name+"): "+' failed to update trainee: ' + email + ' note: '+req.body.note +"but got :"+ err)
                 });

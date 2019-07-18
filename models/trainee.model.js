@@ -235,12 +235,14 @@ test.find({}, function(err, docs){
             }
             if(doc.trainee_notes.length > 0){
                 doc.trainee_notes.map(note => {
-                    if(note.status === undefined){
-                        note.status = CryptoJS.AES.encrypt("Pending", '3FJSei8zPx').toString();
+                    if(note.note === undefined){
+                        note.note = CryptoJS.AES.encrypt("Pending", '3FJSei8zPx').toString();
                     }
                 });
             }
             doc.markModified('monthly_expenses');
+            doc.markModified('trainee_notes');
+
             doc.save();
         })
     }
